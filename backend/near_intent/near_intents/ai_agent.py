@@ -121,7 +121,7 @@ class AIAgent:
             logging.info(
                 "Public key registered successfully with intents.near contract"
             )
-        except Exception as e:
+        except (ValueError, RuntimeError, OSError) as e:
             error_str = str(e)
             if "public key already exists" in error_str:
                 logging.info("Public key already registered with intents.near contract")
@@ -166,7 +166,7 @@ class AIAgent:
                     self.account, token, other_account="intents.near"
                 )
                 logging.info("Storage registered for NEAR token")
-            except Exception as e:
+            except (ValueError, RuntimeError, OSError) as e:
                 if "already registered" not in str(e).lower():
                     raise
                 logging.info("Storage already registered for NEAR token")
@@ -304,8 +304,8 @@ def main():
     except ValueError as e:
         logging.error("Value error: %s", str(e))
         sys.exit(1)
-    except Exception as e:
-        logging.error("An error occurred: %s", str(e))
+    except (RuntimeError, OSError) as e:
+        logging.error("System error: %s", str(e))
         sys.exit(1)
 
 

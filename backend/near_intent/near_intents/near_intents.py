@@ -393,7 +393,10 @@ def intent_swap(account_obj, token_in, amount_in, token_out):
 
 def intent_withdraw(account_obj, destination_address, token, amount, network='near'):
     """Withdraw tokens to an external address."""
-    # {"deadline":"2025-01-05T21:08:23.453Z","intents":[{"intent":"ft_withdraw","token":"17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","receiver_id":"root.near","amount":"1000000"}],"signer_id":"root.near"}
+    # Example quote structure for withdrawal:
+    # {"deadline":"2025-01-05T21:08:23.453Z",
+    #  "intents":[{"intent":"ft_withdraw","token":"17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","receiver_id":"root.near","amount":"1000000"}],
+    #  "signer_id":"root.near"}
     nonce = base64.b64encode(
         random.getrandbits(256).to_bytes(32, byteorder="big")
     ).decode("utf-8")
