@@ -32,16 +32,13 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
    - This design encapsulates NEAR intent execution within an easy-to-use class.
    - Detailed in-line pseudocode and logging boost maintainability and debuggability.
    - Follows best practices such as separation of concerns while reusing shared components defined in intents.py.
-   
+
 Note:
    - This implementation is aligned with the NEAR Defuse Protocol on mainnet, which describes the use
      of a solver bus for quoting and executing token diff intents. For further details, see:
      https://docs.near-intents.org/defuse-protocol
 """
 
-import json
-import logging
-import os
 import sys
 import os
 from dotenv import load_dotenv
@@ -50,14 +47,22 @@ import logging
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
-                          intent_deposit, intent_swap,
-                          register_intent_public_key, register_token_storage,
-                          select_best_option)
+from near_intents import (
+    ASSET_MAP,
+    IntentRequest,
+    account,
+    fetch_options,
+    intent_deposit,
+    intent_swap,
+    register_intent_public_key,
+    register_token_storage,
+    select_best_option,
+)
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 
@@ -94,7 +99,7 @@ class AIAgent:
                 raise ValueError(
                     f"Account {self.account.account_id} not found or not accessible"
                 )
-                
+
             balance_near = float(account_state['amount']) / 10**24  # Convert yoctoNEAR to NEAR
             logging.info("Account state: Balance %.4f NEAR", balance_near)
 
@@ -102,13 +107,13 @@ class AIAgent:
                 raise ValueError(
                     f"Insufficient balance ({balance_near} NEAR). Minimum required: 0.1 NEAR"
                 )
-                
+
         except (ValueError, KeyError, TypeError) as e:
             logging.error("Error checking account state: %s", e)
             raise
-        
+
         logging.info(
-            "Registering intent public key for account: %s", 
+            "Registering intent public key for account: %s",
             self.account.account_id
         )
         try:
@@ -146,15 +151,15 @@ class AIAgent:
                 raise ValueError(
                     f"Account {self.account.account_id} not found or not accessible"
                 )
-                
+
             balance_near = float(account_state['amount']) / 10**24
-            
+
             if balance_near < amount:
                 raise ValueError(
                     f"Insufficient balance ({balance_near:.4f} NEAR) "
                     f"for deposit of {amount:.4f} NEAR"
                 )
-                
+
             # First register storage if needed
             try:
                 register_token_storage(
@@ -200,7 +205,7 @@ class AIAgent:
                 f"Unsupported target token: {target_token}. "
                 f"Supported tokens: {list(ASSET_MAP.keys())}"
             )
-            
+
         logging.info("Initiating swap: %s NEAR -> %s", amount_in, target_token)
         try:
             # Check current balance before swap
@@ -209,15 +214,15 @@ class AIAgent:
                 raise ValueError(
                     f"Account {self.account.account_id} not found or not accessible"
                 )
-                
+
             balance_near = float(account_state['amount']) / 10**24
-            
+
             if balance_near < amount_in:
                 raise ValueError(
                     f"Insufficient balance ({balance_near} NEAR) "
                     f"for swap of {amount_in} NEAR"
                 )
-            
+
             # Create intent request and fetch options
             request = (
                 IntentRequest()
@@ -230,7 +235,7 @@ class AIAgent:
                 raise ValueError(
                     "No swap options available. Try again later or with a different amount."
                 )
-            
+
             logging.info("Found %d swap options", len(options))
             best_option = select_best_option(options)
             logging.info("Selected best option: %s", best_option)
@@ -269,14 +274,14 @@ def main():
         sys.exit(1)
 
     # Get other parameters
-    target_token = os.getenv('TARGET_TOKEN', 'USDC')
-    swap_amount = float(os.getenv('SWAP_AMOUNT', '0.01'))
-    
+    target_token = os.getenv("TARGET_TOKEN", "USDC")
+    swap_amount = float(os.getenv("SWAP_AMOUNT", "0.01"))
+
     logging.info(
         "Configuration loaded - Deposit: %.4f NEAR, Target: %s, Swap: %.4f NEAR",
         deposit_amount, target_token, swap_amount
     )
-    
+
     try:
         # Initialize the AI Agent
         agent = AIAgent(account_path)
@@ -287,7 +292,7 @@ def main():
 
         # Execute the swap
         logging.info(
-            "Starting token swap of %.4f NEAR to %s", 
+            "Starting token swap of %.4f NEAR to %s",
             swap_amount, target_token
         )
         result = agent.swap_near_to_token(target_token, swap_amount)

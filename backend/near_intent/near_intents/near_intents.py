@@ -374,7 +374,9 @@ def intent_swap(account_obj, token_in, amount_in, token_out):
     amount_in_decimals = to_decimals(amount_in, ASSET_MAP[token_in]["decimals"])
     print(f"Creating quote for {amount_in} {token_in} ({amount_in_decimals} raw units)")
     
-    quote = create_token_diff_quote(account_obj, token_in, amount_in, token_out, best_option['amount_out'])
+    quote = create_token_diff_quote(
+        account_obj, token_in, amount_in, token_out, best_option['amount_out']
+    )
     print(f"Created quote: {json.dumps(quote, indent=2)}")
 
     signed_intent = PublishIntent(
