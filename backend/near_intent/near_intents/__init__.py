@@ -7,17 +7,10 @@ using the NEAR Intents system.
 """
 
 from .ai_agent import AIAgent
-from .near_intents import (
-    account,
-    register_intent_public_key,
-    intent_deposit,
-    intent_swap,
-    ASSET_MAP,
-    register_token_storage,
-    IntentRequest,
-    fetch_options,
-    select_best_option,
-)
+from .near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
+                           intent_deposit, intent_swap,
+                           register_intent_public_key, register_token_storage,
+                           select_best_option)
 
 __version__ = "0.1.0"
 __author__ = "Jarrod Barnes"
@@ -33,4 +26,4 @@ __all__ = [
     "IntentRequest",
     "fetch_options",
     "select_best_option",
-] 
+]
