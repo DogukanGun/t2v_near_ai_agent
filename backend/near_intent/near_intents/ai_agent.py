@@ -45,29 +45,22 @@ Note:
     https://docs.near-intents.org/defuse-protocol
 """
 
-from near_intents import (
-    ASSET_MAP,
-    IntentRequest,
-    account,
-    fetch_options,
-    intent_deposit,
-    intent_swap,
-    register_intent_public_key,
-    register_token_storage,
-    select_best_option,
-)
-import sys
-import os
-from dotenv import load_dotenv
 import logging
+import os
+import sys
+
+from dotenv import load_dotenv
+from near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
+                          intent_deposit, intent_swap,
+                          register_intent_public_key, register_token_storage,
+                          select_best_option)
 
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 
@@ -105,7 +98,9 @@ class AIAgent:
                     f"Account {self.account.account_id} not found or not accessible"
                 )
 
-            balance_near = float(account_state['amount']) / 10**24  # Convert yoctoNEAR to NEAR
+            balance_near = (
+                float(account_state["amount"]) / 10**24
+            )  # Convert yoctoNEAR to NEAR
             logging.info("Account state: Balance %.4f NEAR", balance_near)
 
             if balance_near < 0.1:  # Minimum balance check
@@ -118,8 +113,7 @@ class AIAgent:
             raise
 
         logging.info(
-            "Registering intent public key for account: %s",
-            self.account.account_id
+            "Registering intent public key for account: %s", self.account.account_id
         )
         try:
             register_intent_public_key(self.account)
@@ -157,7 +151,7 @@ class AIAgent:
                     f"Account {self.account.account_id} not found or not accessible"
                 )
 
-            balance_near = float(account_state['amount']) / 10**24
+            balance_near = float(account_state["amount"]) / 10**24
 
             if balance_near < amount:
                 raise ValueError(
@@ -220,7 +214,7 @@ class AIAgent:
                     f"Account {self.account.account_id} not found or not accessible"
                 )
 
-            balance_near = float(account_state['amount']) / 10**24
+            balance_near = float(account_state["amount"]) / 10**24
 
             if balance_near < amount_in:
                 raise ValueError(
@@ -284,7 +278,9 @@ def main():
 
     logging.info(
         "Configuration loaded - Deposit: %.4f NEAR, Target: %s, Swap: %.4f NEAR",
-        deposit_amount, target_token, swap_amount
+        deposit_amount,
+        target_token,
+        swap_amount,
     )
 
     try:
@@ -297,8 +293,7 @@ def main():
 
         # Execute the swap
         logging.info(
-            "Starting token swap of %.4f NEAR to %s",
-            swap_amount, target_token
+            "Starting token swap of %.4f NEAR to %s", swap_amount, target_token
         )
         result = agent.swap_near_to_token(target_token, swap_amount)
         logging.info("Token swap completed. Result: %s", result)
