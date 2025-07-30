@@ -41,11 +41,11 @@ Note:
 
 import sys
 import os
-from pathlib import Path
+import asyncio
+import json
+from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 import logging
-import json
-import requests
 
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -77,13 +77,15 @@ class AIAgent:
     - Registering the public key for intent operations.
     - Optionally ensuring that a NEAR deposit has been made.
     - Executing token swap intents through the Solver Bus using provided functions.
+    - Processing AI messages and triggering automatic payments.
     """
 
-    def __init__(self, account_file: str):
+    def __init__(self, account_file: str, ai_provider: str = "openai"):
         """
         Initialize the agent by:
         1. Loading the account from the given account file.
         2. Registering the account's public key with the intents contract.
+        3. Setting up AI provider for message processing.
         """
         if not os.path.exists(account_file):
             raise FileNotFoundError(
