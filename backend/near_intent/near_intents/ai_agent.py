@@ -39,6 +39,9 @@ Note:
      https://docs.near-intents.org/defuse-protocol
 """
 
+import json
+import logging
+import os
 import sys
 import os
 from dotenv import load_dotenv
@@ -47,28 +50,21 @@ import logging
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from near_intents import (
-    account,
-    register_intent_public_key,
-    intent_deposit,
-    intent_swap,
-    ASSET_MAP,
-    register_token_storage,
-    IntentRequest,
-    fetch_options,
-    select_best_option,
-)
+from near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
+                          intent_deposit, intent_swap,
+                          register_intent_public_key, register_token_storage,
+                          select_best_option)
 
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+
 
 class AIAgent:
     """
     AIAgent is responsible for executing NEAR intents on mainnet.
-    
+
     Primary responsibilities include:
     - Loading the NEAR account.
     - Registering the public key for intent operations.
@@ -87,10 +83,10 @@ class AIAgent:
                 f"Account file not found at {account_file}. "
                 "Please ensure the file exists and the path is correct."
             )
-            
+
         logging.info("Loading account from file: %s", account_file)
         self.account = account(account_file)
-        
+
         # Check if the account exists and has sufficient balance
         try:
             account_state = self.account.state()
@@ -101,7 +97,7 @@ class AIAgent:
                 
             balance_near = float(account_state['amount']) / 10**24  # Convert yoctoNEAR to NEAR
             logging.info("Account state: Balance %.4f NEAR", balance_near)
-            
+
             if balance_near < 0.1:  # Minimum balance check
                 raise ValueError(
                     f"Insufficient balance ({balance_near} NEAR). Minimum required: 0.1 NEAR"
@@ -117,7 +113,9 @@ class AIAgent:
         )
         try:
             register_intent_public_key(self.account)
-            logging.info("Public key registered successfully with intents.near contract")
+            logging.info(
+                "Public key registered successfully with intents.near contract"
+            )
         except Exception as e:
             error_str = str(e)
             if "public key already exists" in error_str:
@@ -132,13 +130,13 @@ class AIAgent:
         """
         Deposits the specified amount of NEAR tokens to ensure the account can participate
         in intent operations such as swaps.
-        
+
         Args:
             amount (float): Amount of NEAR to deposit.
         """
         if amount <= 0:
             raise ValueError("Deposit amount must be greater than 0")
-            
+
         token = "NEAR"
         logging.info("Depositing %.4f NEAR for intent operations", amount)
         try:
@@ -159,13 +157,15 @@ class AIAgent:
                 
             # First register storage if needed
             try:
-                register_token_storage(self.account, token, other_account="intents.near")
+                register_token_storage(
+                    self.account, token, other_account="intents.near"
+                )
                 logging.info("Storage registered for NEAR token")
             except Exception as e:
                 if "already registered" not in str(e).lower():
                     raise
                 logging.info("Storage already registered for NEAR token")
-                
+
             # Then deposit NEAR using the provided amount
             intent_deposit(self.account, token, float(amount))  # Ensure amount is float
             logging.info("Deposit transaction submitted successfully")
@@ -176,7 +176,7 @@ class AIAgent:
     def swap_near_to_token(self, target_token: str, amount_in: float):
         """
         Executes a swap intent from NEAR to the specified target token.
-        
+
         Steps:
         1. Log the initiation of the swap process.
         2. Call the intent_swap function from intents.py with parameters:
@@ -184,17 +184,17 @@ class AIAgent:
            - amount_in as the desired NEAR amount to swap.
            - token_out as the target token.
         3. Return the response received from the Solver Bus.
-        
+
         Args:
             target_token (str): The token symbol to swap to (e.g., 'USDC').
             amount_in (float): The amount of NEAR to be swapped.
-        
+
         Returns:
             dict: The response from the intent swap call, which may include status and any errors.
         """
         if amount_in <= 0:
             raise ValueError("Swap amount must be greater than 0")
-            
+
         if target_token not in ASSET_MAP:
             raise ValueError(
                 f"Unsupported target token: {target_token}. "
@@ -219,9 +219,13 @@ class AIAgent:
                 )
             
             # Create intent request and fetch options
-            request = IntentRequest().set_asset_in("NEAR", amount_in).set_asset_out(target_token)
+            request = (
+                IntentRequest()
+                .set_asset_in("NEAR", amount_in)
+                .set_asset_out(target_token)
+            )
             options = fetch_options(request)
-            
+
             if not options:
                 raise ValueError(
                     "No swap options available. Try again later or with a different amount."
@@ -230,7 +234,7 @@ class AIAgent:
             logging.info("Found %d swap options", len(options))
             best_option = select_best_option(options)
             logging.info("Selected best option: %s", best_option)
-            
+
             # Execute the swap
             response = intent_swap(self.account, "NEAR", amount_in, target_token)
             logging.info("Swap request submitted successfully")
@@ -251,19 +255,19 @@ def main():
     """
     # Load environment variables first
     load_dotenv(override=True)  # Add override=True to ensure variables are loaded
-    
+
     # Get account file path and parameters from environment
-    account_path = os.getenv('NEAR_ACCOUNT_FILE', './account_file.json')
-    
+    account_path = os.getenv("NEAR_ACCOUNT_FILE", "./account_file.json")
+
     # Get and validate deposit amount
     try:
-        deposit_amount = float(os.getenv('NEAR_DEPOSIT_AMOUNT', '0.01'))
+        deposit_amount = float(os.getenv("NEAR_DEPOSIT_AMOUNT", "0.01"))
         if deposit_amount <= 0:
             raise ValueError("NEAR_DEPOSIT_AMOUNT must be greater than 0")
     except ValueError as e:
         logging.error("Invalid NEAR_DEPOSIT_AMOUNT: %s", str(e))
         sys.exit(1)
-        
+
     # Get other parameters
     target_token = os.getenv('TARGET_TOKEN', 'USDC')
     swap_amount = float(os.getenv('SWAP_AMOUNT', '0.01'))
@@ -288,7 +292,7 @@ def main():
         )
         result = agent.swap_near_to_token(target_token, swap_amount)
         logging.info("Token swap completed. Result: %s", result)
-        
+
     except FileNotFoundError as e:
         logging.error("Account file error: %s", str(e))
         sys.exit(1)
@@ -301,4 +305,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
