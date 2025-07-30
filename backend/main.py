@@ -1,10 +1,15 @@
-from fastapi import FastAPI, HTTPException
+"""
+T2V Near AI Agent Backend API.
+
+This module provides a FastAPI backend for the T2V Near AI Agent,
+offering health checks, example endpoints, and environment information.
+"""
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
-import requests
-import base58
 
 # Load environment variables
 load_dotenv()
@@ -27,13 +32,16 @@ app.add_middleware(
 
 # Pydantic models
 class HealthResponse(BaseModel):
+    """Response model for health check endpoints."""
     status: str
     message: str
 
 class ExampleRequest(BaseModel):
+    """Request model for example endpoint."""
     message: str
 
 class ExampleResponse(BaseModel):
+    """Response model for example endpoint."""
     received_message: str
     processed_message: str
 

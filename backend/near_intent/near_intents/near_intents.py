@@ -1,3 +1,10 @@
+"""
+NEAR Intents Implementation.
+
+This module provides functionality for interacting with NEAR Protocol intents,
+including token swaps, deposits, and withdrawals using the NEAR Intents system.
+"""
+
 from typing import TypedDict, List, Dict, Union
 import borsh_construct
 import os
@@ -28,11 +35,13 @@ ASSET_MAP = {
 
 
 class Intent(TypedDict):
+    """Intent structure for NEAR intents."""
     intent: str
     diff: Dict[str, str]
 
 
 class Quote(TypedDict):
+    """Quote structure for NEAR intents."""
     nonce: str
     signer_id: str
     verifying_contract: str
@@ -41,7 +50,8 @@ class Quote(TypedDict):
 
 
 def quote_to_borsh(quote):
-    QuoteSchema = borsh_construct.CStruct(
+    """Convert quote to Borsh format."""
+    quote_schema = borsh_construct.CStruct(
         'nonce' / borsh_construct.String,
         'signer_id' / borsh_construct.String,
         'verifying_contract' / borsh_construct.String,
@@ -51,16 +61,18 @@ def quote_to_borsh(quote):
             'diff' / borsh_construct.HashMap(borsh_construct.String, borsh_construct.String)
         ))
     )
-    return QuoteSchema.build(quote)
+    return quote_schema.build(quote)
 
 
 class AcceptQuote(TypedDict):
+    """Accept quote structure."""
     nonce: str
     recipient: str
     message: str
 
 
 class Commitment(TypedDict):
+    """Commitment structure for signed intents."""
     standard: str
     payload: Union[AcceptQuote, str]
     signature: str
@@ -68,22 +80,28 @@ class Commitment(TypedDict):
 
 
 class SignedIntent(TypedDict):
+    """Signed intent structure."""
     signed: List[Commitment]
     
 
 class PublishIntent(TypedDict):
+    """Publish intent structure."""
     signed_data: Commitment
     quote_hashes: List[str] = []
 
 
 class NEARAccount:
+    """NEAR Account wrapper for intent operations."""
+    
     def __init__(self, provider, signer, account_id):
+        """Initialize NEAR account."""
         self.provider = provider
         self.signer = signer
         self.account_id = account_id
         self._account = near_api.account.Account(provider, signer, account_id)
     
     def state(self):
+        """Get account state."""
         return self.provider.query({
             "request_type": "view_account",
             "finality": "final",
@@ -91,6 +109,7 @@ class NEARAccount:
         })
     
     def view_account(self, account_id):
+        """View another account."""
         return self.provider.query({
             "request_type": "view_account",
             "finality": "final",
@@ -98,25 +117,39 @@ class NEARAccount:
         })
     
     def function_call(self, *args, **kwargs):
+        """Make a function call."""
         return self._account.function_call(*args, **kwargs)
     
     def view_function(self, *args, **kwargs):
+        """View a function."""
         return self._account.view_function(*args, **kwargs)
     
     def register_token_storage(self, token, other_account=None):
+        """Register token storage for an account."""
         account_id = other_account if other_account else self.account_id
-        balance = self.view_function(ASSET_MAP[token]['token_id'], 'storage_balance_of', {'account_id': account_id})['result']
+        balance = self.view_function(
+            ASSET_MAP[token]['token_id'], 
+            'storage_balance_of', 
+            {'account_id': account_id}
+        )['result']
         if not balance:
-            print('Register %s for %s storage' % (account_id, token))
-            self.function_call(ASSET_MAP[token]['token_id'], 'storage_deposit',
-                {"account_id": account_id}, MAX_GAS, 1250000000000000000000)
+            print(f'Register {account_id} for {token} storage')
+            self.function_call(
+                ASSET_MAP[token]['token_id'], 
+                'storage_deposit',
+                {"account_id": account_id}, 
+                MAX_GAS, 
+                1250000000000000000000
+            )
         return balance
 
 
 def account(account_path):
-    RPC_NODE_URL = 'https://rpc.mainnet.near.org'
-    content = json.load(open(os.path.expanduser(account_path), 'r'))
-    near_provider = near_api.providers.JsonProvider(RPC_NODE_URL)
+    """Load NEAR account from file."""
+    rpc_node_url = 'https://rpc.mainnet.near.org'
+    with open(os.path.expanduser(account_path), 'r', encoding='utf-8') as f:
+        content = json.load(f)
+    near_provider = near_api.providers.JsonProvider(rpc_node_url)
     key_pair = near_api.signer.KeyPair(content["private_key"])
     signer = near_api.signer.Signer(content["account_id"], key_pair)
     return NEARAccount(near_provider, signer, content["account_id"])
@@ -126,27 +159,30 @@ def get_asset_id(token):
     """Get the asset identifier in the format expected by the solver bus."""
     if token == 'NEAR':
         return 'near'  # Native NEAR token
-    elif token == 'USDC':
+    if token == 'USDC':
         return 'nep141:a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near'  # USDC on NEAR
-    return 'nep141:%s' % ASSET_MAP[token]['token_id']
+    return f'nep141:{ASSET_MAP[token]["token_id"]}'
 
 
 def to_decimals(amount, decimals):
+    """Convert amount to decimal representation."""
     return str(int(amount * 10 ** decimals))
 
 
-def register_token_storage(account, token, other_account=None):
-    return account.register_token_storage(token, other_account)
+def register_token_storage(account_obj, token, other_account=None):
+    """Register token storage for an account."""
+    return account_obj.register_token_storage(token, other_account)
 
 
-def sign_quote(account, quote):
+def sign_quote(account_obj, quote):
+    """Sign a quote with the account's private key."""
     quote_data = quote.encode('utf-8')
-    signature = 'ed25519:' + base58.b58encode(account.signer.sign(quote_data)).decode('utf-8')
-    public_key = 'ed25519:' + base58.b58encode(account.signer.public_key).decode('utf-8')
+    signature = 'ed25519:' + base58.b58encode(account_obj.signer.sign(quote_data)).decode('utf-8')
+    public_key = 'ed25519:' + base58.b58encode(account_obj.signer.public_key).decode('utf-8')
     return Commitment(standard="raw_ed25519", payload=quote, signature=signature, public_key=public_key)
 
 
-def create_token_diff_quote(account, token_in, amount_in, token_out, amount_out):
+def create_token_diff_quote(account_obj, token_in, amount_in, token_out, amount_out):
     """Creates a quote for a token swap."""
     # Generate a random nonce
     nonce = base64.b64encode(random.getrandbits(256).to_bytes(32, byteorder='big')).decode('utf-8')
@@ -154,7 +190,7 @@ def create_token_diff_quote(account, token_in, amount_in, token_out, amount_out)
     # Create the quote with proper token identifiers
     quote = Quote(
         nonce=nonce,
-        signer_id=account.account_id,
+        signer_id=account_obj.account_id,
         verifying_contract='intents.near',
         deadline=str(int(time.time() * 1000) + 120000),  # 2 minutes from now
         intents=[
@@ -169,22 +205,23 @@ def create_token_diff_quote(account, token_in, amount_in, token_out, amount_out)
     )
     
     # Sign and return the quote
-    return sign_quote(account, json.dumps(quote))
+    return sign_quote(account_obj, json.dumps(quote))
 
 
-def submit_signed_intent(account, signed_intent):
-    account.function_call("intents.near", "execute_intents", signed_intent, MAX_GAS, 0)
+def submit_signed_intent(account_obj, signed_intent):
+    """Submit a signed intent to the NEAR network."""
+    account_obj.function_call("intents.near", "execute_intents", signed_intent, MAX_GAS, 0)
 
 
-def intent_deposit(account, token, amount):
+def intent_deposit(account_obj, token, amount):
     """Deposits tokens into the intents contract."""
     if token == 'NEAR':
         # For NEAR token, we need to wrap it first
         amount_raw = to_decimals(amount, ASSET_MAP[token]['decimals'])
         print(f"Depositing {amount} NEAR (raw amount: {amount_raw})")
         print("Wrapping NEAR before deposit")
-        account.function_call('wrap.near', 'near_deposit', {}, MAX_GAS, int(amount_raw))
-        account.function_call('wrap.near', 'ft_transfer_call', {
+        account_obj.function_call('wrap.near', 'near_deposit', {}, MAX_GAS, int(amount_raw))
+        account_obj.function_call('wrap.near', 'ft_transfer_call', {
             "receiver_id": "intents.near",
             "amount": amount_raw,
             "msg": ""
@@ -193,23 +230,25 @@ def intent_deposit(account, token, amount):
         # For other tokens, transfer directly
         amount_raw = to_decimals(amount, ASSET_MAP[token]['decimals'])
         print(f"Depositing {amount} {token} (raw amount: {amount_raw})")
-        account.function_call(ASSET_MAP[token]['token_id'], 'ft_transfer_call', {
+        account_obj.function_call(ASSET_MAP[token]['token_id'], 'ft_transfer_call', {
             "receiver_id": "intents.near",
             "amount": amount_raw,
             "msg": ""
         }, MAX_GAS, 1)
 
 
-def register_intent_public_key(account):
-    account.function_call("intents.near", "add_public_key", {
-        "public_key": "ed25519:" + base58.b58encode(account.signer.public_key).decode('utf-8')
+def register_intent_public_key(account_obj):
+    """Register the account's public key with the intents contract."""
+    account_obj.function_call("intents.near", "add_public_key", {
+        "public_key": "ed25519:" + base58.b58encode(account_obj.signer.public_key).decode('utf-8')
     }, MAX_GAS, 1)
 
 
-class IntentRequest(object):
+class IntentRequest:
     """IntentRequest is a request to perform an action on behalf of the user."""
     
     def __init__(self, request=None, thread=None, min_deadline_ms=120000):
+        """Initialize intent request."""
         self.request = request
         self.thread = thread
         self.min_deadline_ms = min_deadline_ms
@@ -259,7 +298,7 @@ def fetch_options(request):
         "params": [request.serialize()]
     }
     print(f"Sending request to solver bus: {json.dumps(rpc_request, indent=2)}")
-    response = requests.post(SOLVER_BUS_URL, json=rpc_request)
+    response = requests.post(SOLVER_BUS_URL, json=rpc_request, timeout=30)
     response_json = response.json()
     print(f"Received response from solver bus: {json.dumps(response_json, indent=2)}")
     return response_json.get("result", [])
@@ -273,7 +312,7 @@ def publish_intent(signed_intent):
         "method": "publish_intent",
         "params": [signed_intent]
     }
-    response = requests.post(SOLVER_BUS_URL, json=rpc_request)
+    response = requests.post(SOLVER_BUS_URL, json=rpc_request, timeout=30)
     return response.json()
 
 
@@ -295,14 +334,14 @@ def select_best_option(options):
     return best_option
 
 
-def intent_swap(account, token_in, amount_in, token_out):
+def intent_swap(account_obj, token_in, amount_in, token_out):
     """Execute a swap intent between two tokens."""
     print(f"\nInitiating swap: {amount_in} {token_in} -> {token_out}")
     
     # Ensure storage is registered for both tokens
     print("Checking storage registration...")
-    register_token_storage(account, token_in)
-    register_token_storage(account, token_out)
+    register_token_storage(account_obj, token_in)
+    register_token_storage(account_obj, token_out)
     
     # Create intent request and fetch options
     request = IntentRequest().set_asset_in(token_in, amount_in).set_asset_out(token_out)
@@ -320,7 +359,7 @@ def intent_swap(account, token_in, amount_in, token_out):
     amount_in_decimals = to_decimals(amount_in, ASSET_MAP[token_in]['decimals'])
     print(f"Creating quote for {amount_in} {token_in} ({amount_in_decimals} raw units)")
     
-    quote = create_token_diff_quote(account, token_in, amount_in, token_out, best_option['amount_out'])
+    quote = create_token_diff_quote(account_obj, token_in, amount_in, token_out, best_option['amount_out'])
     print(f"Created quote: {json.dumps(quote, indent=2)}")
     
     signed_intent = PublishIntent(signed_data=quote, quote_hashes=[best_option['quote_hash']])
@@ -333,11 +372,12 @@ def intent_swap(account, token_in, amount_in, token_out):
     return response
 
 
-def intent_withdraw(account, destination_address, token, amount, network='near'):
+def intent_withdraw(account_obj, destination_address, token, amount, network='near'):
+    """Withdraw tokens to an external address."""
     # {"deadline":"2025-01-05T21:08:23.453Z","intents":[{"intent":"ft_withdraw","token":"17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","receiver_id":"root.near","amount":"1000000"}],"signer_id":"root.near"}
     nonce = base64.b64encode(random.getrandbits(256).to_bytes(32, byteorder='big')).decode('utf-8')
     quote = Quote(
-        signer_id=account.account_id,
+        signer_id=account_obj.account_id,
         nonce=nonce,
         verifying_contract="intents.testnet",
         deadline="2025-12-31T11:59:59.000Z",
@@ -353,8 +393,8 @@ def intent_withdraw(account, destination_address, token, amount, network='near')
     if network != 'near':
         quote["intents"][0]["token"] = ASSET_MAP[token]['omft']
         quote["intents"][0]["receiver_id"] = ASSET_MAP[token]['omft']
-        quote["intents"][0]["memo"] = "WITHDRAW_TO:%s" % destination_address
-    signed_quote = sign_quote(account, json.dumps(quote))
+        quote["intents"][0]["memo"] = f"WITHDRAW_TO:{destination_address}"
+    signed_quote = sign_quote(account_obj, json.dumps(quote))
     signed_intent = PublishIntent(signed_data=signed_quote, quote_hashes=[])
     return publish_intent(signed_intent)
 
