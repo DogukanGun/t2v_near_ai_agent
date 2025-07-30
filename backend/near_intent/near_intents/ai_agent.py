@@ -3,8 +3,9 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
 
 1. Overview:
    - The AI Agent is designed to automate intent execution on the NEAR mainnet.
-   - It loads an NEAR account using a local key file, registers its public key for intent operations,
-     and then performs token operations such as depositing NEAR (if necessary) and swapping NEAR for another token.
+   - It loads an NEAR account using a local key file,registers its public key for intent operations
+     and then performs token operations such as depositing NEAR (if necessary) 
+     and swapping NEAR for another token.
    - The swap process leverages the following workflow:
      a. Build an IntentRequest detailing the input (NEAR) and desired output token.
      b. Query the Solver Bus API to obtain available trading options.
@@ -19,9 +20,12 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
        • intent_deposit: Send a deposit call for NEAR to be eligible for intent operations.
        • intent_swap: Execute a swap intent by utilizing the intent API.
    - Create the AIAgent class:
-       • __init__: Initialize the agent by loading the account and ensuring that its public key is registered.
-       • deposit_near: (Optional) Ensure that the account has deposited enough NEAR to cover intent deposits.
-       • swap_near_to_token: Call the intent_swap function to execute a swap from NEAR to another token.
+       • __init__: Initialize the agent by loading the account and
+        ensuring that its public key is registered.
+       • deposit_near: (Optional) Ensure that the account has deposited enough NEAR
+        to cover intent deposits.
+       • swap_near_to_token: Call the intent_swap function to execute a swap from NEAR
+        to another token.
    - Add robust logging for step-by-step tracing and error handling.
    - Provide an example usage in the main block to demonstrate:
        • Instantiating the AIAgent with an account file.
@@ -31,21 +35,15 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
 3. Benefits:
    - This design encapsulates NEAR intent execution within an easy-to-use class.
    - Detailed in-line pseudocode and logging boost maintainability and debuggability.
-   - Follows best practices such as separation of concerns while reusing shared components defined in intents.py.
+   - Follows best practices such as separation of concerns 
+    while reusing shared components defined in intents.py.
 
 Note:
-   - This implementation is aligned with the NEAR Defuse Protocol on mainnet, which describes the use
-     of a solver bus for quoting and executing token diff intents. For further details, see:
-     https://docs.near-intents.org/defuse-protocol
+   - This implementation is aligned with the NEAR Defuse Protocol on mainnet, 
+    which describes the use of a solver bus for quoting 
+    and executing token diff intents. For further details, see:
+    https://docs.near-intents.org/defuse-protocol
 """
-
-import sys
-import os
-from dotenv import load_dotenv
-import logging
-
-# Add the parent directory to sys.path so that 'near_intents' can be found
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from near_intents import (
     ASSET_MAP,
@@ -58,6 +56,13 @@ from near_intents import (
     register_token_storage,
     select_best_option,
 )
+import sys
+import os
+from dotenv import load_dotenv
+import logging
+
+# Add the parent directory to sys.path so that 'near_intents' can be found
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set up logging
 logging.basicConfig(

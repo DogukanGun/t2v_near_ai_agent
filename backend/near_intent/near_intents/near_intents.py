@@ -5,10 +5,6 @@ This module provides functionality for interacting with NEAR Protocol intents,
 including token swaps, deposits, and withdrawals using the NEAR Intents system.
 """
 
-from typing import TypedDict, List, Dict, Union
-import borsh_construct
-import os
-import json
 import base64
 import json
 import os
@@ -424,25 +420,6 @@ def intent_withdraw(account_obj, destination_address, token, amount, network='ne
 
 
 if __name__ == "__main__":
-    # Trade between two accounts directly.
-    # account1 = utils.account(
-    #     "<>")
-    # account2 = utils.account(
-    #     "<>")
-    # register_intent_public_key(account1)
-    # register_intent_public_key(account2)
-    # intent_deposit(account1, 'NEAR', 1)
-    # intent_deposit(account2, 'USDC', 10)
-    # quote1 = create_token_diff_quote(account1, 'NEAR', '1', 'USDC', '8')
-    # quote2 = create_token_diff_quote(account2, 'USDC', '8', 'NEAR', '1')
-    # signed_intent = SignedIntent(signed=[quote1, quote2])
-    # print(json.dumps(signed_intent, indent=2))
-    # submit_signed_intent(account1, signed_intent)
-
-    # Trade via solver bus.
-    # account1 = account("")
-    # print(intent_swap(account1, 'NEAR', 1, 'USDC'))
-
     # Withdraw to external address.
     account1 = account("<>")
     # print(intent_withdraw(account1, "<near account>", "USDC", 1))
