@@ -47,6 +47,9 @@ def create_deposit_tool() -> BaseTool:
         BaseTool: A LangChain tool for deposit operations
     """
     def deposit_near(amount: float) -> Dict[str, Any]:
+        if ACCOUNT is None:
+            logger.error("ACCOUNT is not initialized. Call initialize_agent() first.")
+            return {"status": "error", "message": "ACCOUNT is not initialized. Call initialize_agent() first."}
         try:
             logger.info("Depositing %f NEAR", amount)
             ACCOUNT.deposit_near(float(amount))
