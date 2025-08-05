@@ -25,7 +25,7 @@ export default function Navbar() {
           {isMenuOpen && (
             <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 animate-slide-up">
               <li className="animate-fade-in"><Link href="/#features" className="hover:bg-primary hover:text-primary-content transition-all duration-300">Features</Link></li>
-              <li className="animate-fade-in animate-delay-100"><Link href="/#how-it-works" className="hover:bg-primary hover:text-primary-content transition-all duration-300">How It Works</Link></li>
+              <li className="animate-fade-in animate-delay-100"><Link href="/#features" className="hover:bg-primary hover:text-primary-content transition-all duration-300">How It Works</Link></li>
               <li className="animate-fade-in animate-delay-200"><Link href="/#testimonials" className="hover:bg-primary hover:text-primary-content transition-all duration-300">Testimonials</Link></li>
               <li className="animate-fade-in animate-delay-300"><Link href="/#faq" className="hover:bg-primary hover:text-primary-content transition-all duration-300">FAQ</Link></li>
             </ul>
@@ -36,7 +36,7 @@ export default function Navbar() {
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
           <li className="animate-fade-in"><Link href="/#features" className="hover:bg-primary hover:text-primary-content transition-all duration-300">Features</Link></li>
-          <li className="animate-fade-in animate-delay-100"><Link href="/#how-it-works" className="hover:bg-primary hover:text-primary-content transition-all duration-300">How It Works</Link></li>
+          <li className="animate-fade-in animate-delay-100"><Link href="/#features" className="hover:bg-primary hover:text-primary-content transition-all duration-300">How It Works</Link></li>
           <li className="animate-fade-in animate-delay-200"><Link href="/#testimonials" className="hover:bg-primary hover:text-primary-content transition-all duration-300">Testimonials</Link></li>
           <li className="animate-fade-in animate-delay-300"><Link href="/#faq" className="hover:bg-primary hover:text-primary-content transition-all duration-300">FAQ</Link></li>
         </ul>

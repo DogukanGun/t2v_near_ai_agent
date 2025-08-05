@@ -60,7 +60,7 @@ export default function Home() {
         <div className="hero-content text-center">
           <div className="max-w-4xl">
             <h1 className="text-7xl md:text-8xl font-bold mb-6 hero-title animate-fade-in">Myth.OS</h1>
-            <p className="text-2xl md:text-3xl mb-8 hero-subtitle animate-fade-in animate-delay-200 text-white font-light tracking-wide">Design, deploy, and manage intelligent marketing agents powered by advanced AI—across Web3 blockchains and Web2 platforms</p>
+            <p className="text-2xl md:text-3xl mb-8 hero-subtitle animate-fade-in animate-delay-200 text-white font-light tracking-wide">Design, deploy, and manage intelligent marketing agents powered by advanced AI, across Web3 blockchains and Web2 platforms</p>
             <p className="text-lg md:text-xl pb-8 hero-description text-gray-200 max-w-3xl mx-auto leading-relaxed">
               Revolutionize your blockchain marketing with AI-powered autonomous agents. Secure, efficient, and intelligent marketing automation at your fingertips.
             </p>
@@ -73,7 +73,7 @@ export default function Home() {
                   Launch dApp
                 </span>
               </a>
-              <a href="/docs" className="floating-btn btn btn-outline btn-lg text-lg px-8 py-4 border-2 border-white text-white hover:bg-white hover:text-gray-900 backdrop-blur-sm bg-white/10 transform transition-all duration-300">
+              <a href="/docs" className="floating-btn btn btn-outline btn-lg text-lg px-8 py-4 border-2 border-white text-white hover:bg-white hover:text-black backdrop-blur-sm bg-white/10 transform transition-all duration-300">
                 <span className="flex items-center gap-2">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -100,7 +100,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
             Marketing on These Blockchain Networks
           </h2>
-          <p className="text-xl text-center mb-16 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+          <p className="text-xl text-center mb-16 max-w-2xl mx-auto text-black dark:text-black">
             Deploy your autonomous agents across multiple leading blockchain networks with seamless integration and optimal performance
           </p>
           
@@ -136,7 +136,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
             Powered by Advanced Technology
           </h2>
-          <p className="text-xl text-center mb-16 max-w-2xl mx-auto text-black dark:text-gray-300">
+          <p className="text-xl text-center mb-16 max-w-2xl mx-auto text-black dark:text-black">
             Our platform combines cutting-edge AI with blockchain technology to deliver a seamless agent creation experience
           </p>
           
@@ -223,7 +223,7 @@ export default function Home() {
                       {feature.icon}
                     </div>
                     <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
+                    <p className="text-black dark:text-black">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -260,7 +260,7 @@ export default function Home() {
                     </div>
                     <div className="pt-8">
                       <h3 className="text-xl font-bold mb-4 text-center">{step.title}</h3>
-                      <p className="text-gray-600 dark:text-black text-center">{step.description}</p>
+                      <p className="text-black dark:text-black text-center">{step.description}</p>
                     </div>
                   </div>
                 ))}
@@ -319,7 +319,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-center mb-16 max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+          <p className="text-xl text-center mb-16 max-w-2xl mx-auto text-black dark:text-black">
             Everything you need to know about our AI-powered autonomous agents platform
           </p>
           
@@ -345,7 +345,7 @@ export default function Home() {
                     activeFaq === index ? 'max-h-96 pb-6' : 'max-h-0'
                   }`}
                 >
-                  <p className="text-gray-600 dark:text-gray-300">{faq.answer}</p>
+                  <p className="text-black dark:text-black">{faq.answer}</p>
                 </div>
               </div>
             ))}
