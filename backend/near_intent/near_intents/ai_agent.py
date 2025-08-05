@@ -60,7 +60,7 @@ from near_intents import (
     intent_swap,
     register_intent_public_key,
     register_token_storage,
-    select_best_option,
+    select_best_option
 )
 import sys
 
