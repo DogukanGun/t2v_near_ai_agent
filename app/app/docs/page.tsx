@@ -133,10 +133,10 @@ export default function DocsPage() {
               </div>
 
               <div className="mockup-code mb-6">
-                <pre data-prefix="1"><code>// Example: Creating a Twitter marketing agent</code></pre>
-                <pre data-prefix="3"><code>  platform: 'twitter',</code></pre>
-                <pre data-prefix="4"><code>  strategy: 'engagement',</code></pre>
-                <pre data-prefix="5"><code>  target: 'crypto-enthusiasts'</code></pre>
+                <pre data-prefix="1"><code>{`// Example: Creating a Twitter marketing agent`}</code></pre>
+                <pre data-prefix="3"><code>  platform: &apos;twitter&apos;,</code></pre>
+                <pre data-prefix="4"><code>  strategy: &apos;engagement&apos;,</code></pre>
+                <pre data-prefix="5"><code>  target: &apos;crypto-enthusiasts&apos;</code></pre>
               </div>
 
               <div className="alert alert-success">

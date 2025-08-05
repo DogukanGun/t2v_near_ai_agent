@@ -7,14 +7,6 @@ import ThemeSwitcher from './ThemeSwitcher';
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsMenuOpen(false);
-    }
-  };
-
   return (
     <div className="navbar bg-base-100 sticky top-0 z-50 shadow-md animate-fade-in">
       <div className="navbar-start">

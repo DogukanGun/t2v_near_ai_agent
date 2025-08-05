@@ -282,7 +282,13 @@ export default function Home() {
               <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
                 <div className="relative">
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden ring-4 ring-primary">
-                    <img src="/ines.jpeg" alt="Dr. Ines O'Donovan" className="w-full h-full object-cover" />
+                    <Image 
+                      src="/ines.jpeg" 
+                      alt="Dr. Ines O'Donovan" 
+                      width={128} 
+                      height={128} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <div className="absolute -bottom-2 -right-2 bg-primary text-primary-content rounded-full p-2">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -294,10 +300,10 @@ export default function Home() {
               
               <div className="mt-12 text-center">
                 <blockquote className="text-xl md:text-2xl italic mb-8 leading-relaxed">
-                  "Since integrating Myth.OS into our platform at Jeunessima Magazine, we've seen early signs of improved engagement. With AI-powered agents optimizing ad targeting and placement, we expect to see a 25% boost in interaction rates over the coming months."
+                  &quot;Since integrating Myth.OS into our platform at Jeunessima Magazine, we&apos;ve seen early signs of improved engagement. With AI-powered agents optimizing ad targeting and placement, we expect to see a 25% boost in interaction rates over the coming months.&quot;
                 </blockquote>
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-primary">Dr. Ines O'Donovan, PhD</h3>
+                  <h3 className="text-2xl font-bold text-primary">Dr. Ines O&apos;Donovan, PhD</h3>
                   <p className="text-xl font-semibold text-secondary">The Ageless Futurist</p>
                   <p className="text-lg text-accent">CEO, Jeunessima Magazine</p>
                 </div>
