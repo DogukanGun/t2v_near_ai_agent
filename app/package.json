@@ -22,6 +22,9 @@
     "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3",
+    "autoprefixer": "^10.4.16",
+    "daisyui": "^4.4.20",
+    "postcss": "^8.4.32"
   }
 }
