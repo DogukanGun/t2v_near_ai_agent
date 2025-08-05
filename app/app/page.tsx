@@ -273,11 +273,11 @@ export default function Home() {
       {/* Testimonials */}
       <div id="testimonials" className="relative py-24 bg-gradient-to-b from-base-200 to-base-300">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+          <h2 className="text-4xl md:text-5xl font-bold text-center my-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
             What Our Users Say
           </h2>
           
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mt-20 mx-auto">
             <div className="relative bg-base-100 rounded-3xl p-8 md:p-12 shadow-2xl">
               <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
                 <div className="relative">
