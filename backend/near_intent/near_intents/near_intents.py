@@ -14,7 +14,9 @@ from typing import Dict, List, TypedDict, Union
 
 import base58
 import borsh_construct
-import near_api
+import py_near.account as near_api_account
+import py_near.providers as near_api_providers
+from near_api import signer as near_api_signer
 import requests
 
 MAX_GAS = 300 * 10**12
@@ -110,7 +112,7 @@ class NEARAccount:
         self.provider = provider
         self.signer = signer
         self.account_id = account_id
-        self._account = near_api.account.Account(provider, signer, account_id)
+        self._account = near_api_account.Account(provider, signer, account_id)
 
     def state(self):
         """Get account state."""
@@ -143,6 +145,7 @@ class NEARAccount:
     def register_token_storage(self, token, other_account=None):
         """Register token storage for an account."""
         account_id = other_account if other_account else self.account_id
+        # pylint: disable=unsubscriptable-object
         balance = self.view_function(
             ASSET_MAP[token]["token_id"],
             "storage_balance_of",
@@ -165,9 +168,9 @@ def account(account_path):
     rpc_node_url = "https://rpc.mainnet.near.org"
     with open(os.path.expanduser(account_path), "r", encoding="utf-8") as f:
         content = json.load(f)
-    near_provider = near_api.providers.JsonProvider(rpc_node_url)
-    key_pair = near_api.signer.KeyPair(content["private_key"])
-    signer = near_api.signer.Signer(content["account_id"], key_pair)
+    near_provider = near_api_providers.JsonProvider(rpc_node_url)
+    key_pair = near_api_signer.KeyPair(content["private_key"])
+    signer = near_api_signer.Signer(content["account_id"], key_pair)
     return NEARAccount(near_provider, signer, content["account_id"])
 
 
