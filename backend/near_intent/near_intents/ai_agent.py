@@ -51,7 +51,7 @@ import asyncio
 import json
 from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
-from near_intents import (
+from . import (
     ASSET_MAP,
     IntentRequest,
     account,
