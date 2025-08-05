@@ -47,11 +47,13 @@ Note:
 
 import logging
 import os
-import asyncio
-import json
-from typing import Dict, Any, Optional, List
-from dotenv import load_dotenv
 import sys
+
+from dotenv import load_dotenv
+from near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
+                          intent_deposit, intent_swap,
+                          register_intent_public_key, register_token_storage,
+                          select_best_option)
 
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -247,6 +249,21 @@ class AIAgent:
         except (ValueError, KeyError, TypeError) as e:
             logging.error("Failed to execute swap: %s", e)
             raise
+
+
+def handle_intent_execution(intent_type, *args, **kwargs):
+    """Handle intent execution with proper error handling."""
+    try:
+        # Remove unused ai_provider parameter from kwargs if present
+        kwargs.pop('ai_provider', None)
+        
+        if intent_type == "swap":
+            return intent_swap(*args, **kwargs)
+        # Add other intent types as needed
+        return None
+    except Exception as e:
+        logging.error(f"Error executing {intent_type} intent: {str(e)}")
+        raise
 
 
 def main():

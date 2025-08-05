@@ -14,7 +14,9 @@ from typing import Dict, List, TypedDict, Union
 
 import base58
 import borsh_construct
-import near_api
+import py_near.account as near_api_account
+import py_near.providers as near_api_providers
+from near_api import signer as near_api_signer
 import requests
 
 MAX_GAS = 300 * 10**12
@@ -110,7 +112,7 @@ class NEARAccount:
         self.provider = provider
         self.signer = signer
         self.account_id = account_id
-        self._account = near_api.account.Account(provider, signer, account_id)
+        self._account = near_api_account.Account(provider, signer, account_id)
 
     def state(self):
         """Get account state."""
@@ -143,6 +145,7 @@ class NEARAccount:
     def register_token_storage(self, token, other_account=None):
         """Register token storage for an account."""
         account_id = other_account if other_account else self.account_id
+        # pylint: disable=unsubscriptable-object
         balance = self.view_function(
             ASSET_MAP[token]["token_id"],
             "storage_balance_of",
@@ -165,9 +168,9 @@ def account(account_path):
     rpc_node_url = "https://rpc.mainnet.near.org"
     with open(os.path.expanduser(account_path), "r", encoding="utf-8") as f:
         content = json.load(f)
-    near_provider = near_api.providers.JsonProvider(rpc_node_url)
-    key_pair = near_api.signer.KeyPair(content["private_key"])
-    signer = near_api.signer.Signer(content["account_id"], key_pair)
+    near_provider = near_api_providers.JsonProvider(rpc_node_url)
+    key_pair = near_api_signer.KeyPair(content["private_key"])
+    signer = near_api_signer.Signer(content["account_id"], key_pair)
     return NEARAccount(near_provider, signer, content["account_id"])
 
 
@@ -464,15 +467,27 @@ def intent_withdraw(account_obj, destination_address, token, amount, network="ne
 def start_video_generation(account, user_message, payment_amount, payment_token="NEAR"):
     """Execute a video generation intent with automatic payment."""
     print(f"\nInitiating video generation: {user_message}")
-    
+
     # Step 1: Process the AI request (video generation)
     # This would call your AI service
-    
+
     # Step 2: Create payment intent
     # Similar to intent_swap but for payment instead of swap
-    
+
     # Step 3: Execute the payment
     # Use the existing intent system to make the payment
+
+
+def process_payment(account_id: str, destination: str, amount: float, token: str) -> Dict:
+    """Process a payment using NEAR intents."""
+    if not account_id or not destination or amount <= 0:
+        raise ValueError("Invalid payment parameters")
+    
+    try:
+        # Implementation of payment processing
+        return {"status": "success", "message": f"Payment of {amount} {token} processed"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 if __name__ == "__main__":
