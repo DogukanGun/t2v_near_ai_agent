@@ -464,13 +464,13 @@ def intent_withdraw(account_obj, destination_address, token, amount, network="ne
 def start_video_generation(account, user_message, payment_amount, payment_token="NEAR"):
     """Execute a video generation intent with automatic payment."""
     print(f"\nInitiating video generation: {user_message}")
-    
+
     # Step 1: Process the AI request (video generation)
     # This would call your AI service
-    
+
     # Step 2: Create payment intent
     # Similar to intent_swap but for payment instead of swap
-    
+
     # Step 3: Execute the payment
     # Use the existing intent system to make the payment
 
