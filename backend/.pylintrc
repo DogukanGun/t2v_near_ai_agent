@@ -1,0 +1,33 @@
+[MASTER]
+# Discover python modules/packages in the file system subtree
+recursive=yes
+# Files or directories to be skipped. They should be base names, not paths
+ignore=CVS,.git,__pycache__
+
+[MESSAGES CONTROL]
+# Disable specific warnings that are not critical
+disable=
+    C0111,  # missing-docstring
+    C0303,  # trailing-whitespace
+    W0603,  # global-statement
+    W0621,  # redefined-outer-name
+    W0613,  # unused-argument
+    W0718,  # broad-exception-caught
+    W1203,  # logging-fstring-interpolation
+    C0415,  # import-outside-toplevel
+    E1136,  # unsubscriptable-object
+    C0411   # wrong-import-order
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=100
+
+[REPORTS]
+# Set the output format
+output-format=colorized
+# Include a brief explanation of each error
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+
+[TYPECHECK]
+# List of module names for which member attributes should not be checked
+ignored-modules=langchain.agents,langchain.agents.agent_types,langchain.tools,langchain_openai 
