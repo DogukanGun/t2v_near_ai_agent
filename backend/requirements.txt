@@ -17,6 +17,9 @@ aiohttp>=3.8.0
 langchain>=0.1.0
 langchain-openai>=0.1.0
 
+# Project Dependencies
+pymongo>=4.13.2
+pydantic>=2.11.7
 # Note: near-api-py>=0.3.1 has compatibility issues with Python 3.12
 # Only version 0.1.0 is available but has build issues
 # Consider using alternative Near Protocol libraries or downgrading Python version
