@@ -1,4 +1,4 @@
-from typing import Any, Dict, Mapping, Sequence, TypeVar, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeVar, Union
 
 from bson.objectid import ObjectId
 from pymongo import MongoClient
@@ -32,34 +32,45 @@ class MongoDatabase:
             .inserted_id
         )
 
-    # TODO get operation should contain sorting
     def get_object(
-        self, collection_name: str, filter: Dict[str, Any] = None, show_deleted=False
-    ) -> [Any]:
-        if filter is not None:
-            filter["is_deleted"] = show_deleted
+        self, 
+        collection_name: str, 
+        filter_query: Optional[Dict[str, Any]] = None, 
+        show_deleted: bool = False,
+        sort_by: Optional[List[tuple]] = None
+    ) -> List[Any]:
+        if filter_query is not None:
+            filter_query["is_deleted"] = show_deleted
         else:
-            filter = {"is_deleted": show_deleted}
+            filter_query = {"is_deleted": show_deleted}
+        
         cursor = (
             self.client.get_database(self.database_name)
             .get_collection(collection_name)
-            .find(filter=filter)
+            .find(filter=filter_query)
         )
-        return [obj for obj in cursor]
+        
+        if sort_by:
+            cursor = cursor.sort(sort_by)
+            
+        return list(cursor)
 
     def get_single_object(
-        self, collection_name: str, filter: Dict[str, Any] = None, show_deleted=False
-    ) -> [Any]:
-        if filter is not None:
-            filter["is_deleted"] = show_deleted
+        self,
+            collection_name: str,
+            filter_query: Optional[Dict[str, Any]] = None,
+            show_deleted: bool = False
+    ) -> Optional[Any]:
+        if filter_query is not None:
+            filter_query["is_deleted"] = show_deleted
         else:
-            filter = {"is_deleted": show_deleted}
+            filter_query = {"is_deleted": show_deleted}
         cursor = (
             self.client.get_database(self.database_name)
             .get_collection(collection_name)
-            .find(filter=filter)
+            .find(filter=filter_query)
         )
-        objs = [obj for obj in cursor]
+        objs = list(cursor)
         if len(objs) != 1:
             return None
         return objs[0]
@@ -67,30 +78,32 @@ class MongoDatabase:
     def update_object(
         self,
         collection_name: str,
-        filter: Dict[str, Any],
+        filter_query: Dict[str, Any],
         new_data: Union[Mapping[str, Any], Sequence[Mapping[str, Any]]],
         upsert: bool = False,
     ) -> int:
         return (
             self.client.get_database(self.database_name)
             .get_collection(collection_name)
-            .update_one(filter=filter, update={"$set": new_data}, upsert=upsert)
+            .update_one(filter=filter_query, update={"$set": new_data}, upsert=upsert)
             .matched_count
         )
 
-    def delete_object(self, collection_name: str, filter: Dict[str, Any] = None) -> int:
-        objects = self.get_object(collection_name, filter)
+    def delete_object(self,
+                      collection_name: str,
+                      filter_query: Optional[Dict[str, Any]] = None
+                      ) -> int:
+        objects = self.get_object(collection_name, filter_query)
         deleted_number = 0
         for obj in objects:
             deleted_number += self.update_object(
-                collection_name, {"_id": obj["_id"]}, {"$set": {"is_deleted": True}}
+                collection_name, {"_id": obj["_id"]}, {"is_deleted": True}
             )
         return deleted_number
 
 
 class Database(MongoDatabase):
-    def __init__(self, database_name):
-        super().__init__(database_name)
+    pass
 
 
 def get_db():
