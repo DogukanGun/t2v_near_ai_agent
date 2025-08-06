@@ -35,7 +35,7 @@ export default function Navbar() {
       </div>
       <div className="navbar-end">
         <ThemeSwitcher />
-        <Link href="https://6e0907dab094d1512a9b569584b75b0ac17fa88f-5678.dstack-prod5.phala.network/form/e59e78eb-05e0-4c94-b53b-15c9e83045f5" className="btn btn-primary ml-2 animate-bounce-in animate-delay-400 hover:animate-pulse-soft">Launch dApp</Link>
+        <Link href="/app" className="btn btn-primary ml-2 animate-bounce-in animate-delay-400 hover:animate-pulse-soft">Launch dApp</Link>
       </div>
     </div>
   );
