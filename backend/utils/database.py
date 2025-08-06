@@ -109,7 +109,7 @@ class Database(MongoDatabase):
 def get_db():
     db = Database("platform")
     try:
-        yield db
         logger.logger.info("Database init is done")
+        yield db
     except Exception as e:
         logger.logger.error(e)
