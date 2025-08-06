@@ -16,6 +16,6 @@ class DeleteTest(TestCase):
         database = Database(table_name)
         obj_id = database.insert_object(collection_name, test_obj)
         database.delete_object(collection_name)
-        obj = database.get_object(collection_name,{"_id":obj_id})
+        obj = database.get_object(collection_name, {"_id": obj_id})
         assert len(obj) != 0
         assert obj[0]["is_deleted"]
