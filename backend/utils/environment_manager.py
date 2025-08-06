@@ -35,7 +35,7 @@ class EnvironmentManager:
 def get_environment_manager() -> Generator[EnvironmentManager, Any, None]:
     ev_manager = EnvironmentManager()
     try:
-        yield ev_manager
         logger.info("Environment manager init is done")
+        yield ev_manager
     except Exception as e:
         logger.error(e)
