@@ -23,8 +23,10 @@ class EnvironmentManager:
             self.environment_values = dotenv_values(env_file_name)
 
     def get_key(self, key) -> str:
-        return self.environment_values[key]
-        
+        if key in self.environment_values:
+            return self.environment_values[key]
+        else:
+            raise KeyError(f"Key '{key}' not found in environment values.")
     def has_key(self, key) -> bool:
         """Check if a key exists in the environment values."""
         return key in self.environment_values
