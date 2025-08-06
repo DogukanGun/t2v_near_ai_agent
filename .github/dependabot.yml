@@ -5,7 +5,7 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
+  - package-ecosystem: "npm" # CHANGE THIS to the correct ecosystem if not using npm. See documentation for possible values
     directory: "/app" # Location of package manifests
     schedule:
       interval: "weekly"
