@@ -3,8 +3,7 @@ from typing import Any, Dict, Generator
 
 from dotenv import dotenv_values
 
-from utils.constants.environment_keys import (EnvironmentKeys,
-                                              TestEnvironmentKeys)
+from utils.constants.environment_keys import EnvironmentKeys, TestEnvironmentKeys
 from utils.logger import logger
 
 
@@ -25,8 +24,8 @@ class EnvironmentManager:
     def get_key(self, key) -> str:
         if key in self.environment_values:
             return self.environment_values[key]
-        else:
-            raise KeyError(f"Key '{key}' not found in environment values.")
+        raise KeyError(f"Key '{key}' not found in environment values.")
+
     def has_key(self, key) -> bool:
         """Check if a key exists in the environment values."""
         return key in self.environment_values
