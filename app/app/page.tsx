@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('how-it-works')
@@ -65,14 +66,14 @@ export default function Home() {
               Revolutionize your blockchain marketing with AI-powered autonomous agents. Secure, efficient, and intelligent marketing automation at your fingertips.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6 animate-fade-in animate-delay-400">
-              <a href="https://6e0907dab094d1512a9b569584b75b0ac17fa88f-5678.dstack-prod5.phala.network/form/e59e78eb-05e0-4c94-b53b-15c9e83045f5" className="floating-btn btn btn-primary btn-lg text-lg px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 border-none text-white hover:from-purple-700 hover:to-pink-700 transform transition-all duration-300">
+              <Link href="/app" className="floating-btn btn btn-primary btn-lg text-lg px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 border-none text-white hover:from-purple-700 hover:to-pink-700 transform transition-all duration-300">
                 <span className="flex items-center gap-2">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   Launch dApp
                 </span>
-              </a>
+              </Link>
               <a href="/docs" className="floating-btn btn btn-outline btn-lg text-lg px-8 py-4 border-2 border-white text-white hover:bg-white hover:text-black backdrop-blur-sm bg-white/10 transform transition-all duration-300">
                 <span className="flex items-center gap-2">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
