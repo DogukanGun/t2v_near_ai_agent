@@ -3,7 +3,6 @@
 interface WalletBarProps {
   address?: string
   balance?: string
-  onConnect?: () => void
   onSwap?: () => void
   onTransfer?: () => void
 }
@@ -11,7 +10,6 @@ interface WalletBarProps {
 export default function WalletBar({ 
   address, 
   balance = '0 NEAR',
-  onConnect,
   onSwap,
   onTransfer 
 }: WalletBarProps) {

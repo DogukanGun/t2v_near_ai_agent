@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { WalletBar } from './components/wallet'
-import { ChatInterface, ChatHistory } from './components/chat'
+import { ChatHistory } from './components/chat'
 
 interface Message {
   id: string
