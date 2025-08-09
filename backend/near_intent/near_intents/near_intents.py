@@ -16,8 +16,8 @@ import base58
 import borsh_construct
 import py_near.account as near_api_account
 import py_near.providers as near_api_providers
-from near_api import signer as near_api_signer
 import requests
+from near_api import signer as near_api_signer
 
 MAX_GAS = 300 * 10**12
 
@@ -478,14 +478,19 @@ def start_video_generation(account, user_message, payment_amount, payment_token=
     # Use the existing intent system to make the payment
 
 
-def process_payment(account_id: str, destination: str, amount: float, token: str) -> Dict:
+def process_payment(
+    account_id: str, destination: str, amount: float, token: str
+) -> Dict:
     """Process a payment using NEAR intents."""
     if not account_id or not destination or amount <= 0:
         raise ValueError("Invalid payment parameters")
-    
+
     try:
         # Implementation of payment processing
-        return {"status": "success", "message": f"Payment of {amount} {token} processed"}
+        return {
+            "status": "success",
+            "message": f"Payment of {amount} {token} processed",
+        }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
