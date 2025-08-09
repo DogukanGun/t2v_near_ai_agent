@@ -255,8 +255,8 @@ def handle_intent_execution(intent_type, *args, **kwargs):
     """Handle intent execution with proper error handling."""
     try:
         # Remove unused ai_provider parameter from kwargs if present
-        kwargs.pop('ai_provider', None)
-        
+        kwargs.pop("ai_provider", None)
+
         if intent_type == "swap":
             return intent_swap(*args, **kwargs)
         # Add other intent types as needed
