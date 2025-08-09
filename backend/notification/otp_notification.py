@@ -9,9 +9,7 @@ from utils.environment_manager import EnvironmentManager
 from utils.logger import logger
 
 
-def send_notification_for_otp(
-    notification_identifier: str, data: OTPNotification
-):
+def send_notification_for_otp(notification_identifier: str, data: OTPNotification):
     __send_email_notification__(notification_identifier, data)
 
 

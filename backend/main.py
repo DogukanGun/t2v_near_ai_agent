@@ -40,7 +40,6 @@ class HealthResponse(BaseModel):
     message: str
 
 
-
 # Routes
 @app.get("/", response_model=HealthResponse)
 async def root():
@@ -65,4 +64,5 @@ for router in routers:  # routers_test
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
