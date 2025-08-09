@@ -3,9 +3,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from utils.constants.environment_keys import EnvironmentKeys
+from utils.email_utils import validate_email_environment
 from utils.environment_manager import EnvironmentManager
 from utils.logger import logger
-from utils.email_utils import validate_email_environment
 
 
 def send_email(email: str, subject: str, title: str, body: str):
@@ -15,7 +15,6 @@ def send_email(email: str, subject: str, title: str, body: str):
     message["To"] = env_map.get_key(EnvironmentKeys.EMAIL.value)
     message["From"] = env_map.get_key(EnvironmentKeys.EMAIL.value)
     message["Subject"] = subject
-
 
     message_text = MIMEText(body, "html")
     message.attach(MIMEText(title, "html"))

@@ -2,12 +2,11 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-
 from notification.data import OTPNotification
 from utils.constants.environment_keys import EnvironmentKeys
+from utils.email_utils import validate_email_environment
 from utils.environment_manager import EnvironmentManager
 from utils.logger import logger
-from utils.email_utils import validate_email_environment
 
 
 def send_notification_for_otp(notification_identifier: str, data: OTPNotification):
