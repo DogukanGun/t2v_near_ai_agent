@@ -5,6 +5,11 @@ class EnvironmentKeys(Enum):
     CONNECTION_STRING = "CONNECTION_STRING"
     OS = "OS"
     MONGO_URI = "MONGO_URI"
+    EMAIL = "EMAIL"
+    EMAIL_PASSWORD = "EMAIL_PASSWORD"
+    SECRET_KEY = "SECRET_KEY"
+    ALGORITHM = "ALGORITHM"
+    OTP_SECRET = "OTP_SECRET"
 
 
 class TestEnvironmentKeys(Enum):
