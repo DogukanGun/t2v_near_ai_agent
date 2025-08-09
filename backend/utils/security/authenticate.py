@@ -81,7 +81,9 @@ def authenticate_user(db: Database, username: str = "", password: str = ""):
         return False
     if not verify_password(password, users[0]["password"]):
         return False
-    return users[0]
+    if not verify_password(password, users["password"]):
+        return False
+    return users
 
 
 def get_current_user(
