@@ -1,4 +1,28 @@
-Mythos – AI-Powered Multi-Agent Marketing Platform
+# Mythos – AI-Powered Multi-Agent Marketing Platform
+
+## 🚀 New Feature: NEAR Data Access Integration
+
+The agent now includes comprehensive on-chain data access capabilities:
+
+### 📊 Data Access Features
+- **Account Information**: Complete account overviews with balances and activity
+- **Token Balances**: Real-time token balance queries for any NEAR account
+- **NFT Data**: NFT ownership, metadata, and collection information
+- **DAO Governance**: DAO proposals, voting data, and member information
+- **Blockchain Search**: General purpose data queries and analysis
+
+### 🔧 Technical Implementation
+- **IndexerClient**: Interfaces with NEAR Lake and Pagoda indexers
+- **NFTClient**: Connects to NFT marketplaces (Paras, Mintbase)
+- **DAOClient**: Accesses governance data from Sputnik and Astro DAOs
+- **TokenClient**: Queries token contracts and metadata
+- **Unified API**: 6 new REST endpoints for data access
+
+### 📖 Documentation
+See [NEAR_DATA_ACCESS.md](./NEAR_DATA_ACCESS.md) for detailed usage instructions and examples.
+
+---
+
 Mythos is a next-generation AI Agent Agency designed for early-stage blockchain projects, marketers, and Web3 startups.
 Built on NEAR Protocol, Mythos leverages NEAR AI and NEAR Intents to deliver autonomous, on-chain AI agents that automate marketing, content creation, and engagement.
 
