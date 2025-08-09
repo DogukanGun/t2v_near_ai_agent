@@ -1,4 +1,4 @@
-from enum import Enum
+
 from typing import Generic, List, TypeVar
 
 from pydantic import BaseModel
@@ -30,7 +30,7 @@ def include_id_if_exists(data: List[T]) -> List[T]:
 
 def return_success_response_with_data(data: T) -> BaseResponse[T]:
     is_list = True
-    if type(data) is list:
+    if isinstance(data, list):
         data = include_id_if_exists(data)
     else:
         is_list = False

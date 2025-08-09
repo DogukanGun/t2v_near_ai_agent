@@ -2,28 +2,21 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from notification.data import EmailMissingKeysException
 from utils.constants.environment_keys import EnvironmentKeys
 from utils.environment_manager import EnvironmentManager
 from utils.logger import logger
+from utils.email_utils import validate_email_environment
 
 
 def send_email(email: str, subject: str, title: str, body: str):
     env_map = EnvironmentManager()
-    if (
-        env_map.get_key(EnvironmentKeys.EMAIL.value) is None
-        or env_map.get_key(EnvironmentKeys.EMAIL_PASSWORD.value) is None
-    ):
-        logger.error(
-            "Email or password keys in environment are missing or are named wrongly"
-        )
-        raise EmailMissingKeysException("Email server cannot be initialized")
+    validate_email_environment(env_map)
     message = MIMEMultipart()
     message["To"] = env_map.get_key(EnvironmentKeys.EMAIL.value)
     message["From"] = env_map.get_key(EnvironmentKeys.EMAIL.value)
     message["Subject"] = subject
 
-    title = title
+
     message_text = MIMEText(body, "html")
     message.attach(MIMEText(title, "html"))
     message.attach(message_text)

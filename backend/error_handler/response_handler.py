@@ -9,7 +9,7 @@ def return_error_message(db: Database, error: ErrorCode) -> BaseResponse[dict]:
     error_objs = db.get_object(
         CollectionName.ERROR_MESSAGES.value, {"error_code": error.value}
     )
-    # TODO add default error message
+    # Default error message when no specific error is found
     if len(error_objs) == 0 or error_objs is None:
         custom_error_default_data = {
             "error_message": "Please contact with the team",

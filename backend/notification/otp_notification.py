@@ -2,11 +2,12 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from auth.data import NotificationTypes
-from notification.data import EmailMissingKeysException, OTPNotification
+
+from notification.data import OTPNotification
 from utils.constants.environment_keys import EnvironmentKeys
 from utils.environment_manager import EnvironmentManager
 from utils.logger import logger
+from utils.email_utils import validate_email_environment
 
 
 def send_notification_for_otp(notification_identifier: str, data: OTPNotification):
@@ -15,14 +16,7 @@ def send_notification_for_otp(notification_identifier: str, data: OTPNotificatio
 
 def __send_email_notification__(notification_identifier: str, data: OTPNotification):
     env_map = EnvironmentManager()
-    if (
-        env_map.get_key(EnvironmentKeys.EMAIL.value) is None
-        or env_map.get_key(EnvironmentKeys.EMAIL_PASSWORD.value) is None
-    ):
-        logger.error(
-            "Email or password keys in environment are missing or are named wrongly"
-        )
-        raise EmailMissingKeysException("Email server cannot be initialized")
+    validate_email_environment(env_map)
     message = MIMEMultipart()
     message["To"] = notification_identifier
     message["From"] = env_map.get_key(EnvironmentKeys.EMAIL.value)

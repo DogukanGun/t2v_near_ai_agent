@@ -4,17 +4,17 @@ from typing import Any, List
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from api.data.auth_data import Token, User
+from api.data.auth_data import User
 from api.data.general import return_success_response
 from error_handler.error_codes import ErrorCode
 from error_handler.response_handler import return_error_message
-from notification.data import NotificationReasons, OTPNotification
+from notification.data import OTPNotification
 from notification.user_notification import send_notification_to_user
 from utils.constants.collection_name import CollectionName
 from utils.database import Database, get_db
 from utils.environment_manager import (EnvironmentManager,
                                        get_environment_manager)
-from utils.security.authenticate import authenticate_user, create_access_token
+from utils.security.authenticate import create_access_token
 from utils.security.otp import generate_otp, verify_otp
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

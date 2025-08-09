@@ -69,8 +69,8 @@ def get_token_payload(
         if payload_sub is None:
             raise BearAuthException("Token could not be validated")
         return payload_sub
-    except JWTError:
-        raise BearAuthException("Token could not be validated")
+    except JWTError as exc:
+        raise BearAuthException("Token could not be validated") from exc
 
 
 def authenticate_user(db: Database, username: str = "", password: str = ""):
@@ -110,8 +110,8 @@ def get_current_user(
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
         token_data = TokenData(scopes=token_scopes, username=username)
-    except (JWTError, ValidationError):
-        raise credentials_exception
+    except (JWTError, ValidationError) as exc:
+        raise credentials_exception from exc
     users = db.get_object(CollectionName.USER.value, {"username": username})
     if users is None or len(users) == 0:
         raise credentials_exception
