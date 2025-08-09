@@ -9,7 +9,7 @@ class EnvironmentKeys(Enum):
     EMAIL_PASSWORD = "EMAIL_PASSWORD"
     SECRET_KEY = "SECRET_KEY"
     ALGORITHM = "ALGORITHM"
-
+    OTP_SECRET = "OTP_SECRET"
 
 class TestEnvironmentKeys(Enum):
     CONNECTION_STRING = "CONNECTION_STRING"

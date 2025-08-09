@@ -22,7 +22,7 @@ pymongo>=4.13.2
 pydantic>=2.11.7
 pyotp>=2.9.0
 passlib>=1.7.4
-jose>=1.0.0
+python-jose>=3.5.0
 # Note: near-api-py>=0.3.1 has compatibility issues with Python 3.12
 # Only version 0.1.0 is available but has build issues
 # Consider using alternative Near Protocol libraries or downgrading Python version

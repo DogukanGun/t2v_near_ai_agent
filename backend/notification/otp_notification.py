@@ -10,12 +10,9 @@ from utils.logger import logger
 
 
 def send_notification_for_otp(
-    notification_type: str, notification_identifier: str, data: OTPNotification
+    notification_identifier: str, data: OTPNotification
 ):
-    if notification_type.lower() == NotificationTypes.EMAIL.value.lower():
-        __send_email_notification__(notification_identifier, data)
-    else:
-        logger.error("Notification type is presented wrongly")
+    __send_email_notification__(notification_identifier, data)
 
 
 def __send_email_notification__(notification_identifier: str, data: OTPNotification):

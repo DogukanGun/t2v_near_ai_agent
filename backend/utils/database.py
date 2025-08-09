@@ -15,7 +15,7 @@ class MongoDatabase:
 
     def __init__(self, database_name):
         ev_manager = EnvironmentManager()
-        connection_string = ev_manager.get_key(EnvironmentKeys.MONGO_URI.value)
+        connection_string = ev_manager.get_key(EnvironmentKeys.CONNECTION_STRING.value)
         self.client = MongoClient(
             connection_string
             if connection_string is not None
@@ -108,7 +108,7 @@ class Database(MongoDatabase):
 def get_db():
     db = Database("platform")
     try:
-        logger.logger.info("Database init is done")
+        logger.info("Database init is done")
         yield db
     except Exception as e:
-        logger.logger.error(e)
+        logger.error(e)

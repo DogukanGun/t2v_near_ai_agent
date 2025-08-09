@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 class UserBase(BaseModel):
     username: str
-    otp: str
 
 
 class LoginData(BaseModel):
@@ -16,7 +15,6 @@ class LoginData(BaseModel):
 
 class User(UserBase):
     username: str
-    wallet_address: Optional[str] = None
     disabled: Optional[bool] = None
 
 

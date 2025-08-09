@@ -26,7 +26,7 @@ def create_token(username: str, scopes: List[str], env_manager: EnvironmentManag
     )
 
 
-@router.post("/login/{user_identifier}", response_model=Token)
+@router.post("/login/{user_identifier}")
 def login(
         user_identifier: str,
         db: Database = Depends(get_db),
@@ -37,14 +37,16 @@ def login(
         {"username": user_identifier},
     )
     if user is None:
-        return return_error_message(db, ErrorCode.OBJECT_NOT_FOUND)
-    user_obj = User(**user)
+        db.insert_object(CollectionName.USER.value, {"username": user_identifier})
+        username = user_identifier
+    else:
+        user_obj = User(**user)
+        username = user_obj.username
     otp_code = generate_otp(env_manager)
     send_notification_to_user(
         db,
-        user_obj.username,
+        username,
         OTPNotification("Your otp code", "OTP Code", otp_code),
-        NotificationReasons.OTP.value
     )
     return return_success_response()
 
