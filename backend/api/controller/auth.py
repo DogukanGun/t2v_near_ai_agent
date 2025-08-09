@@ -23,7 +23,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 def create_token(
     username: str, scopes: List[str], env_manager: EnvironmentManager
 ) -> str:
-    access_token_expires = timedelta(minutes=60 * 60 * 8)
+    access_token_expires = timedelta(hours=8)
     return create_access_token(
         env_manager=env_manager,
         data={"sub": username, "scopes": scopes},
