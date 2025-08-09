@@ -12,7 +12,7 @@ def send_email(email: str, subject: str, title: str, body: str):
     env_map = EnvironmentManager()
     validate_email_environment(env_map)
     message = MIMEMultipart()
-    message["To"] = env_map.get_key(EnvironmentKeys.EMAIL.value)
+    message["To"] = email
     message["From"] = env_map.get_key(EnvironmentKeys.EMAIL.value)
     message["Subject"] = subject
 
