@@ -58,6 +58,17 @@ from near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Add the backend directory to sys.path for near_data_access imports
+backend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "near_data_access")
+if backend_path not in sys.path:
+    sys.path.append(backend_path)
+
+try:
+    from near_data_access import NEARDataClient
+except ImportError:
+    # Fallback if import fails
+    NEARDataClient = None
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -76,12 +87,13 @@ class AIAgent:
     - Processing AI messages and triggering automatic payments.
     """
 
-    def __init__(self, account_file: str, ai_provider: str = "openai"):
+    def __init__(self, account_file: str, ai_provider: str = "openai", network: str = "mainnet"):
         """
         Initialize the agent by:
         1. Loading the account from the given account file.
         2. Registering the account's public key with the intents contract.
         3. Setting up AI provider for message processing.
+        4. Initializing NEAR data access capabilities.
         """
         if not os.path.exists(account_file):
             raise FileNotFoundError(
@@ -91,6 +103,18 @@ class AIAgent:
 
         logging.info("Loading account from file: %s", account_file)
         self.account = account(account_file)
+        self.network = network
+
+        # Initialize NEAR data access client if available
+        self.data_client = None
+        if NEARDataClient:
+            try:
+                self.data_client = NEARDataClient(network)
+                logging.info("NEAR data access client initialized successfully")
+            except Exception as e:
+                logging.warning(f"Failed to initialize data client: {str(e)}")
+        else:
+            logging.warning("NEAR data access not available - install near_data_access module")
 
         # Check if the account exists and has sufficient balance
         try:
@@ -248,6 +272,136 @@ class AIAgent:
             return response
         except (ValueError, KeyError, TypeError) as e:
             logging.error("Failed to execute swap: %s", e)
+            raise
+
+    # NEAR Data Access Methods
+    
+    def get_account_info(self, account_id: str = None) -> dict:
+        """
+        Get account information for the specified account or self.
+        
+        Args:
+            account_id (str): Account ID to query, defaults to self
+            
+        Returns:
+            dict: Account information
+        """
+        if not self.data_client:
+            raise RuntimeError("Data client not available")
+        
+        target_account = account_id or self.account.account_id
+        logging.info(f"Getting account info for: {target_account}")
+        
+        try:
+            return self.data_client.get_account_overview(target_account)
+        except Exception as e:
+            logging.error(f"Failed to get account info: {str(e)}")
+            raise
+
+    def get_token_balances(self, account_id: str = None) -> list:
+        """
+        Get token balances for the specified account or self.
+        
+        Args:
+            account_id (str): Account ID to query, defaults to self
+            
+        Returns:
+            list: List of token balances
+        """
+        if not self.data_client:
+            raise RuntimeError("Data client not available")
+        
+        target_account = account_id or self.account.account_id
+        logging.info(f"Getting token balances for: {target_account}")
+        
+        try:
+            return self.data_client.token.get_all_token_balances(target_account)
+        except Exception as e:
+            logging.error(f"Failed to get token balances: {str(e)}")
+            raise
+
+    def get_nft_info(self, contract_id: str = None, token_id: str = None, owner_id: str = None) -> dict:
+        """
+        Get NFT information either by specific token or by owner.
+        
+        Args:
+            contract_id (str): NFT contract ID
+            token_id (str): Specific token ID  
+            owner_id (str): Owner account ID to get all NFTs
+            
+        Returns:
+            dict: NFT information
+        """
+        if not self.data_client:
+            raise RuntimeError("Data client not available")
+        
+        try:
+            if contract_id and token_id:
+                logging.info(f"Getting NFT info for: {contract_id}:{token_id}")
+                return self.data_client.nft.get_nft_by_token_id(contract_id, token_id)
+            elif owner_id:
+                logging.info(f"Getting NFTs for owner: {owner_id}")
+                return self.data_client.nft.get_nfts_by_owner(owner_id)
+            else:
+                # Default to getting NFTs for self
+                target_account = self.account.account_id
+                logging.info(f"Getting NFTs for self: {target_account}")
+                return self.data_client.nft.get_nfts_by_owner(target_account)
+        except Exception as e:
+            logging.error(f"Failed to get NFT info: {str(e)}")
+            raise
+
+    def get_dao_info(self, dao_id: str = None, proposals: bool = False) -> dict:
+        """
+        Get DAO information and optionally proposals.
+        
+        Args:
+            dao_id (str): DAO contract ID
+            proposals (bool): Whether to include recent proposals
+            
+        Returns:
+            dict: DAO information
+        """
+        if not self.data_client:
+            raise RuntimeError("Data client not available")
+        
+        if not dao_id:
+            raise ValueError("DAO ID is required")
+        
+        logging.info(f"Getting DAO info for: {dao_id}")
+        
+        try:
+            dao_info = self.data_client.dao.get_dao_info(dao_id)
+            
+            if proposals and dao_info:
+                dao_proposals = self.data_client.dao.get_dao_proposals(dao_id, limit=5)
+                dao_info["recent_proposals"] = dao_proposals
+            
+            return dao_info
+        except Exception as e:
+            logging.error(f"Failed to get DAO info: {str(e)}")
+            raise
+
+    def query_blockchain_data(self, query: str, search_type: str = "auto") -> dict:
+        """
+        General purpose blockchain data query method.
+        
+        Args:
+            query (str): Search query (account, token, DAO, etc.)
+            search_type (str): Type of search to perform
+            
+        Returns:
+            dict: Query results
+        """
+        if not self.data_client:
+            raise RuntimeError("Data client not available")
+        
+        logging.info(f"Querying blockchain data: {query} (type: {search_type})")
+        
+        try:
+            return self.data_client.search_and_analyze(query, search_type)
+        except Exception as e:
+            logging.error(f"Failed to query blockchain data: {str(e)}")
             raise
 
 
