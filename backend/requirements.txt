@@ -26,3 +26,7 @@ python-jose>=3.5.0
 # Note: near-api-py>=0.3.1 has compatibility issues with Python 3.12
 # Only version 0.1.0 is available but has build issues
 # Consider using alternative Near Protocol libraries or downgrading Python version
+
+# Testing dependencies
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
