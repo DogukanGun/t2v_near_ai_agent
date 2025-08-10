@@ -98,7 +98,7 @@ jobs:
           MONGODB_URI: mongodb://localhost:27017
           DATABASE_NAME: test_db
           OS: test
-          OTP_SECRET: test_otp_secret_key_for_testing_only
+          OTP_SECRET: base32base32base32
           SECRET_KEY: test_secret_key_for_testing_only
           EMAIL: test@example.com
           EMAIL_PASSWORD: test_password
