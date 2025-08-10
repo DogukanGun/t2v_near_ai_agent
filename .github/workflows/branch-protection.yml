@@ -1,0 +1,47 @@
+name: Apply Branch Protection
+
+on:
+  workflow_dispatch:  # Manual trigger
+  repository_dispatch:
+    types: [branch_protection_update]
+
+jobs:
+  apply-protection:
+    name: Apply Branch Protection Rules
+    runs-on: ubuntu-latest
+    permissions:
+      administration: write  # Required to modify branch protection
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Apply Branch Protection for main
+        run: |
+          gh api repos/${{ github.repository }}/branches/main/protection \
+            --method PUT \
+            --field required_status_checks='{"strict":true,"contexts":["Lint and Build Next.js app","Lint and Format","DevSkim","Dependency review","Codacy Security Scan","CodeQL Advanced"]}' \
+            --field enforce_admins=false \
+            --field required_pull_request_reviews='{"required_approving_review_count":1,"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+            --field allow_force_pushes=false \
+            --field allow_deletions=false \
+            --field block_creations=false \
+            --field required_conversation_resolution=true
+
+      - name: Apply Branch Protection for dev
+        run: |
+          gh api repos/${{ github.repository }}/branches/dev/protection \
+            --method PUT \
+            --field required_status_checks='{"strict":true,"contexts":["Lint and Build Next.js app","Lint and Format","DevSkim","Dependency review","Codacy Security Scan","CodeQL Advanced"]}' \
+            --field enforce_admins=false \
+            --field required_pull_request_reviews='{"required_approving_review_count":1,"dismiss_stale_reviews":true,"require_code_owner_reviews":false}' \
+            --field allow_force_pushes=false \
+            --field allow_deletions=false \
+            --field block_creations=false \
+            --field required_conversation_resolution=true
+
+      - name: Verify Protection Applied
+        run: |
+          echo "Verifying branch protection for main..."
+          gh api repos/${{ github.repository }}/branches/main/protection
+          echo "Verifying branch protection for dev..."
+          gh api repos/${{ github.repository }}/branches/dev/protection 

@@ -1,0 +1,64 @@
+# Branch Protection Rules Configuration
+# This file documents the required branch protection settings
+# Apply these rules through GitHub UI or API for main and dev branches
+
+branches:
+  - name: main
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - "Lint and Build Next.js app"
+          - "Lint and Format"
+          - "DevSkim"
+          - "Dependency review"
+          - "Codacy Security Scan"
+          - "CodeQL Advanced"
+      enforce_admins: false  # Disable admin bypass
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      restrictions: null  # Allow all users to push
+      allow_force_pushes: false
+      allow_deletions: false
+      block_creations: false
+      required_conversation_resolution: true
+
+  - name: dev
+    protection:
+      required_status_checks:
+        strict: true
+        contexts:
+          - "Lint and Build Next.js app"
+          - "Lint and Format"
+          - "DevSkim"
+          - "Dependency review"
+          - "Codacy Security Scan"
+          - "CodeQL Advanced"
+      enforce_admins: false  # Disable admin bypass
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: false
+      restrictions: null  # Allow all users to push
+      allow_force_pushes: false
+      allow_deletions: false
+      block_creations: false
+      required_conversation_resolution: true
+
+# Required CI Checks (must all pass):
+# 1. Lint and Build Next.js app - ESLint, TypeScript, Next.js build
+# 2. Lint and Format - Pylint, Black, isort formatting
+# 3. DevSkim - Security vulnerability scanning
+# 4. Dependency review - Security vulnerability checks
+# 5. Codacy Security Scan - Advanced security analysis
+# 6. CodeQL Advanced - Static code analysis for JavaScript/TypeScript and Python
+
+# Protection Features:
+# - Strict status checks: Must be up to date with base branch
+# - Admin bypass disabled: Even admins cannot merge failing builds
+# - Required PR reviews: At least 1 approval needed
+# - Conversation resolution: All review comments must be resolved
+# - No force pushes: Prevents history rewriting
+# - No deletions: Protects against accidental branch deletion 
