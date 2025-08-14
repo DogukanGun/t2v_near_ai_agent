@@ -15,7 +15,6 @@ from langchain.agents.agent_types import AgentType
 from langchain.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
-
 from utils.constants.environment_keys import EnvironmentKeys
 from utils.environment_manager import EnvironmentManager
 from .ai_agent import AIAgent
