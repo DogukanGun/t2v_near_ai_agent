@@ -1,12 +1,15 @@
-name: Lint Next.js app
+name: Lint and Build Next.js app
 
 on:
   push:
     paths:
       - 'app/**'    # only run if files in app/ change
+  pull_request:
+    paths:
+      - 'app/**'    # also run on PRs that modify app/ files
 
 jobs:
-  lint:
+  lint-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +28,11 @@ jobs:
       - name: Run linter
         working-directory: app
         run: npm run lint
+
+      - name: TypeScript type check
+        working-directory: app
+        run: npx tsc --noEmit
+
+      - name: Build Next.js app
+        working-directory: app
+        run: npm run build

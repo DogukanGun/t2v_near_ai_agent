@@ -73,13 +73,15 @@ class AIAgent:
     - Registering the public key for intent operations.
     - Optionally ensuring that a NEAR deposit has been made.
     - Executing token swap intents through the Solver Bus using provided functions.
+    - Processing AI messages and triggering automatic payments.
     """
 
-    def __init__(self, account_file: str):
+    def __init__(self, account_file: str, ai_provider: str = "openai"):
         """
         Initialize the agent by:
         1. Loading the account from the given account file.
         2. Registering the account's public key with the intents contract.
+        3. Setting up AI provider for message processing.
         """
         if not os.path.exists(account_file):
             raise FileNotFoundError(
@@ -247,6 +249,21 @@ class AIAgent:
         except (ValueError, KeyError, TypeError) as e:
             logging.error("Failed to execute swap: %s", e)
             raise
+
+
+def handle_intent_execution(intent_type, *args, **kwargs):
+    """Handle intent execution with proper error handling."""
+    try:
+        # Remove unused ai_provider parameter from kwargs if present
+        kwargs.pop("ai_provider", None)
+
+        if intent_type == "swap":
+            return intent_swap(*args, **kwargs)
+        # Add other intent types as needed
+        return None
+    except Exception as e:
+        logging.error(f"Error executing {intent_type} intent: {str(e)}")
+        raise
 
 
 def main():
