@@ -1,6 +1,7 @@
 from typing import Generic, List, TypeVar
 
 from pydantic import BaseModel
+
 from utils.logger import logger
 
 T = TypeVar("T")

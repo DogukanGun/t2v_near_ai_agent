@@ -1,17 +1,17 @@
 import logging
-import uuid
 from datetime import timedelta
 from typing import Annotated, Any, Dict, List
 
 import base58
 import requests
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from nacl.signing import SigningKey
+
 from api.data.auth_data import User
 from api.data.general import return_success_response
 from error_handler.error_codes import ErrorCode
 from error_handler.response_handler import return_error_message
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from nacl.signing import SigningKey
 from notification.data import OTPNotification
 from notification.user_notification import send_notification_to_user
 from utils.constants.collection_name import CollectionName
@@ -42,7 +42,9 @@ def create_token(
 def faucet(account_id: str, public_key_near: str):
     url = "https://helper.testnet.near.org/account"
     res = requests.post(
-        url, json={"newAccountId": account_id, "newAccountPublicKey": public_key_near}
+        url,
+        json={"newAccountId": account_id, "newAccountPublicKey": public_key_near},
+        timeout=30,
     )
     return res.status_code == 200
 

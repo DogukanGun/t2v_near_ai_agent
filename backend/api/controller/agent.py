@@ -1,11 +1,10 @@
 import json
 import logging
 
-from api.data.agent_data import AgentResponse, ChatResponse, UserRequest
+from fastapi import APIRouter, Depends, HTTPException
+
 from api.data.auth_data import User
-from api.data.general import (return_success_response,
-                              return_success_response_with_data)
-from fastapi import APIRouter, Body, Depends, HTTPException
+from api.data.general import return_success_response_with_data
 from near_intent.near_intents.langchain_agent import setup_agent_and_run
 from utils.constants.collection_name import CollectionName
 from utils.constants.environment_keys import EnvironmentKeys
@@ -32,7 +31,6 @@ async def chat(
     """
     Process a user message using the LangChain agent with the user's NEAR account.
     """
-    request = UserRequest(message=message)
     try:
         # Get OpenAI API key from environment variable
         api_key = env_manager.get_key(EnvironmentKeys.OPEN_ROUTER_KEY.value)
@@ -85,4 +83,4 @@ async def chat(
         logger.error(f"Error processing request: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Error processing request: {str(e)}"
-        )
+        ) from e

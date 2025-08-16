@@ -10,12 +10,8 @@ import logging
 import os
 from typing import Any, Callable, Dict, Optional
 
-from langchain.agents import AgentExecutor
-from langchain.agents.agent_types import AgentType
-from langchain.tools import BaseTool, Tool
-from langchain_openai import ChatOpenAI
+from langchain.tools import Tool
 from openai import OpenAI
-from pydantic import SecretStr
 
 from .ai_agent import AIAgent
 
@@ -29,19 +25,19 @@ TOOLS = []
 
 
 def initialize_agent(
-    account_data: Dict[str, str], onSign: Optional[Callable[[], None]] = None
+    account_data: Dict[str, str], on_sign: Optional[Callable[[], None]] = None
 ) -> None:
     """
     Initialize the LangChain agent with the given account data.
 
     Args:
         account_data: Dictionary containing account_id and private_key
-        onSign: Optional callback function to be called when all transactions are completed
+        on_sign: Optional callback function to be called when all transactions are completed
     """
     global ACCOUNT
     try:
         logger.info("Initializing agent with account: %s", account_data["account_id"])
-        ACCOUNT = AIAgent(account_data, onSign)
+        ACCOUNT = AIAgent(account_data, on_sign)
     except Exception as e:
         logger.error("Failed to initialize agent: %s", str(e))
         raise
@@ -108,7 +104,7 @@ def setup_agent_and_run(
     message: str,
     key: str,
     account_data: Dict[str, str],
-    onSign: Optional[Callable[[], None]] = None,
+    on_sign: Optional[Callable[[], None]] = None,
 ) -> str | None:
     """
     Set up the LangChain agent with necessary tools and configuration.
@@ -116,7 +112,7 @@ def setup_agent_and_run(
     Args:
         key: OpenAI API key
         account_data: Dictionary containing account_id and private_key
-        onSign: Optional callback function to be called when all transactions are completed
+        on_sign: Optional callback function to be called when all transactions are completed
 
     Returns:
         AgentExecutor: Configured LangChain agent executor
@@ -125,8 +121,7 @@ def setup_agent_and_run(
     os.putenv("OPENAI_API_KEY", key)
 
     # Initialize the AI agent with account data
-    initialize_agent(account_data, onSign)
-    from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+    initialize_agent(account_data, on_sign)
 
     # Create a system prompt with explicit instructions for structured responses
     system_prompt = """You are a helpful assistant for NEAR Protocol DeFi operations.

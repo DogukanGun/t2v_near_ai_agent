@@ -3,8 +3,9 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
 
 1. Overview:
    - The AI Agent is designed to automate intent execution on the NEAR mainnet.
-   - It loads an NEAR account using a local key file, registers its public key for intent operations,
-     and then performs token operations such as depositing NEAR (if necessary) and swapping NEAR for another token.
+   - It loads an NEAR account using a local key file, registers its public key for intent
+     operations, and then performs token operations such as depositing NEAR (if necessary)
+     and swapping NEAR for another token.
    - The swap process leverages the following workflow:
      a. Build an IntentRequest detailing the input (NEAR) and desired output token.
      b. Query the Solver Bus API to obtain available trading options.
@@ -19,9 +20,12 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
        • intent_deposit: Send a deposit call for NEAR to be eligible for intent operations.
        • intent_swap: Execute a swap intent by utilizing the intent API.
    - Create the AIAgent class:
-       • __init__: Initialize the agent by loading the account and ensuring that its public key is registered.
-       • deposit_near: (Optional) Ensure that the account has deposited enough NEAR to cover intent deposits.
-       • swap_near_to_token: Call the intent_swap function to execute a swap from NEAR to another token.
+       • __init__: Initialize the agent by loading the account and ensuring that its public key
+         is registered.
+       • deposit_near: (Optional) Ensure that the account has deposited enough NEAR to cover
+         intent deposits.
+       • swap_near_to_token: Call the intent_swap function to execute a swap from NEAR to
+         another token.
    - Add robust logging for step-by-step tracing and error handling.
    - Provide an example usage in the main block to demonstrate:
        • Instantiating the AIAgent with an account file.
@@ -31,10 +35,11 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
 3. Benefits:
    - This design encapsulates NEAR intent execution within an easy-to-use class.
    - Detailed in-line pseudocode and logging boost maintainability and debuggability.
-   - Follows best practices such as separation of concerns while reusing shared components defined in intents.py.
+   - Follows best practices such as separation of concerns while reusing shared components
+     defined in intents.py.
 
 Note:
-   - This implementation is aligned with the NEAR Defuse Protocol on mainnet, which describes the use
+   - This implementation is aligned with the NEAR Defuse Protocol on mainnet which describes the use
      of a solver bus for quoting and executing token diff intents. For further details, see:
      https://docs.near-intents.org/defuse-protocol
 """
@@ -43,19 +48,17 @@ import json
 import logging
 import os
 import sys
-from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Callable, Dict, Optional
 
-import requests
 from dotenv import load_dotenv
 
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Use relative imports to avoid circular imports
-from .near_intents import (ASSET_MAP, IntentRequest, account,
-                           create_account_from_dict, fetch_options,
-                           intent_deposit, intent_swap,
+from .near_intents import (ASSET_MAP,  # pylint: disable=wrong-import-position
+                           IntentRequest, create_account_from_dict,
+                           fetch_options, intent_deposit, intent_swap,
                            register_intent_public_key, register_token_storage,
                            select_best_option)
 
@@ -78,7 +81,7 @@ class AIAgent:
     """
 
     def __init__(
-        self, account_data: Dict[str, str], onSign: Optional[Callable[[], None]] = None
+        self, account_data: Dict[str, str], on_sign: Optional[Callable[[], None]] = None
     ):
         """
         Initialize the agent by:
@@ -87,9 +90,9 @@ class AIAgent:
 
         Args:
             account_data: Dictionary containing account_id and private_key
-            onSign: Optional callback function to be called when all transactions are completed
+            on_sign: Optional callback function to be called when all transactions are completed
         """
-        self.onSign = onSign
+        self.on_sign = on_sign
 
         logging.info("Creating account from provided data")
         self.account = create_account_from_dict(account_data)
@@ -160,7 +163,8 @@ class AIAgent:
 
             if balance_near < amount:
                 raise ValueError(
-                    f"Insufficient balance ({balance_near:.4f} NEAR) for deposit of {amount:.4f} NEAR"
+                    f"Insufficient balance ({balance_near:.4f} NEAR)"
+                    f" for deposit of {amount:.4f} NEAR"
                 )
 
             # First register storage if needed
@@ -178,9 +182,9 @@ class AIAgent:
             intent_deposit(self.account, token, float(amount))  # Ensure amount is float
             logging.info("Deposit transaction submitted successfully")
 
-            # Call onSign callback if provided
-            if self.onSign:
-                self.onSign()
+            # Call on_sign callback if provided
+            if self.on_sign:
+                self.on_sign()
         except Exception as e:
             logging.error("Failed to deposit NEAR: %s", e)
             raise
@@ -209,7 +213,8 @@ class AIAgent:
 
         if target_token not in ASSET_MAP:
             raise ValueError(
-                f"Unsupported target token: {target_token}. Supported tokens: {list(ASSET_MAP.keys())}"
+                f"Unsupported target token: {target_token}. "
+                f"Supported tokens: {list(ASSET_MAP.keys())}"
             )
 
         logging.info("Initiating swap: %s NEAR -> %s", amount_in, target_token)
@@ -250,9 +255,9 @@ class AIAgent:
             logging.info("Swap request submitted successfully")
             logging.debug("Swap response: %s", response)
 
-            # Call onSign callback if provided
-            if self.onSign:
-                self.onSign()
+            # Call on_sign callback if provided
+            if self.on_sign:
+                self.on_sign()
 
             return response
         except Exception as e:
@@ -311,7 +316,7 @@ def main():
 
     try:
         # Load account data from file for example purposes
-        with open(account_path, "r") as f:
+        with open(account_path, "r", encoding="utf-8") as f:
             account_data = json.load(f)
 
         # Example of using the callback

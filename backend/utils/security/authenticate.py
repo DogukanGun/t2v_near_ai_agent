@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from api.data.auth_data import TokenData, User
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
+
+from api.data.auth_data import TokenData, User
 from utils.constants.collection_name import CollectionName
 from utils.constants.environment_keys import EnvironmentKeys
 from utils.database import Database, get_db

@@ -41,7 +41,7 @@ class Quote(TypedDict):
 
 
 def quote_to_borsh(quote):
-    QuoteSchema = borsh_construct.CStruct(
+    quote_schema = borsh_construct.CStruct(
         "nonce" / borsh_construct.String,
         "signer_id" / borsh_construct.String,
         "verifying_contract" / borsh_construct.String,
@@ -57,7 +57,7 @@ def quote_to_borsh(quote):
             )
         ),
     )
-    return QuoteSchema.build(quote)
+    return quote_schema.build(quote)
 
 
 class AcceptQuote(TypedDict):
@@ -121,7 +121,7 @@ class NEARAccount:
             {"account_id": account_id},
         )["result"]
         if not balance:
-            print("Register %s for %s storage" % (account_id, token))
+            print(f"Register {account_id} for {token} storage")
             self.function_call(
                 ASSET_MAP[token]["token_id"],
                 "storage_deposit",
@@ -133,9 +133,10 @@ class NEARAccount:
 
 
 def account(account_path):
-    RPC_NODE_URL = "https://rpc.mainnet.near.org"
-    content = json.load(open(os.path.expanduser(account_path), "r"))
-    near_provider = near_api.providers.JsonProvider(RPC_NODE_URL)
+    rpc_node_url = "https://rpc.mainnet.near.org"
+    with open(os.path.expanduser(account_path), "r", encoding="utf-8") as f:
+        content = json.load(f)
+    near_provider = near_api.providers.JsonProvider(rpc_node_url)
     key_pair = near_api.signer.KeyPair(content["private_key"])
     signer = near_api.signer.Signer(content["account_id"], key_pair)
     return NEARAccount(near_provider, signer, content["account_id"])
@@ -153,11 +154,11 @@ def create_account_from_dict(account_data: Dict[str, str]) -> NEARAccount:
     """
     # Use testnet RPC URL for testnet accounts, otherwise use mainnet
     if ".testnet" in account_data["account_id"]:
-        RPC_NODE_URL = "https://rpc.testnet.near.org"
+        rpc_node_url = "https://rpc.testnet.near.org"
     else:
-        RPC_NODE_URL = "https://rpc.mainnet.near.org"
+        rpc_node_url = "https://rpc.mainnet.near.org"
 
-    near_provider = near_api.providers.JsonProvider(RPC_NODE_URL)
+    near_provider = near_api.providers.JsonProvider(rpc_node_url)
     key_pair = near_api.signer.KeyPair(account_data["private_key"])
     signer = near_api.signer.Signer(account_data["account_id"], key_pair)
     return NEARAccount(near_provider, signer, account_data["account_id"])
@@ -167,9 +168,9 @@ def get_asset_id(token):
     """Get the asset identifier in the format expected by the solver bus."""
     if token == "NEAR":
         return "near"  # Native NEAR token
-    elif token == "USDC":
+    if token == "USDC":
         return "nep141:a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near"  # USDC on NEAR
-    return "nep141:%s" % ASSET_MAP[token]["token_id"]
+    return f"nep141:{ASSET_MAP[token]['token_id']}"
 
 
 def to_decimals(amount, decimals):
@@ -272,7 +273,7 @@ def register_intent_public_key(account):
     )
 
 
-class IntentRequest(object):
+class IntentRequest:
     """IntentRequest is a request to perform an action on behalf of the user."""
 
     def __init__(self, request=None, thread=None, min_deadline_ms=120000):
@@ -329,7 +330,7 @@ def fetch_options(request):
         "params": [request.serialize()],
     }
     print(f"Sending request to solver bus: {json.dumps(rpc_request, indent=2)}")
-    response = requests.post(SOLVER_BUS_URL, json=rpc_request)
+    response = requests.post(SOLVER_BUS_URL, json=rpc_request, timeout=30)
     response_json = response.json()
     print(f"Received response from solver bus: {json.dumps(response_json, indent=2)}")
     return response_json.get("result", [])
@@ -343,7 +344,7 @@ def publish_intent(signed_intent):
         "method": "publish_intent",
         "params": [signed_intent],
     }
-    response = requests.post(SOLVER_BUS_URL, json=rpc_request)
+    response = requests.post(SOLVER_BUS_URL, json=rpc_request, timeout=30)
     return response.json()
 
 
@@ -410,7 +411,9 @@ def intent_swap(account, token_in, amount_in, token_out):
 
 
 def intent_withdraw(account, destination_address, token, amount, network="near"):
-    # {"deadline":"2025-01-05T21:08:23.453Z","intents":[{"intent":"ft_withdraw","token":"17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","receiver_id":"root.near","amount":"1000000"}],"signer_id":"root.near"}
+    # {"deadline":"2025-01-05T21:08:23.453Z","intents":[{"intent":"ft_withdraw",
+    # "token":"17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    # "receiver_id":"root.near","amount":"1000000"}],"signer_id":"root.near"}
     nonce = base64.b64encode(
         random.getrandbits(256).to_bytes(32, byteorder="big")
     ).decode("utf-8")
@@ -431,7 +434,7 @@ def intent_withdraw(account, destination_address, token, amount, network="near")
     if network != "near":
         quote["intents"][0]["token"] = ASSET_MAP[token]["omft"]
         quote["intents"][0]["receiver_id"] = ASSET_MAP[token]["omft"]
-        quote["intents"][0]["memo"] = "WITHDRAW_TO:%s" % destination_address
+        quote["intents"][0]["memo"] = f"WITHDRAW_TO:{destination_address}"
     signed_quote = sign_quote(account, json.dumps(quote))
     signed_intent = PublishIntent(signed_data=signed_quote, quote_hashes=[])
     return publish_intent(signed_intent)

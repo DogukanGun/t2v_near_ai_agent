@@ -5,11 +5,12 @@ This module provides a FastAPI backend for the T2V Near AI Agent,
 offering health checks, example endpoints, and environment information.
 """
 
-from api.controller import agent, auth
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from api.controller import agent, auth
 
 # Load environment variables
 load_dotenv()
