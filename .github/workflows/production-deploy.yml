@@ -3,11 +3,10 @@ name: Production Deployment & Version Tagging
 on:
   pull_request:
     branches:
-      - main
       - dev
   push:
     branches:
-      - feat/release_version
+      - main
 
 jobs:
   build_and_tag:
