@@ -70,3 +70,13 @@ Q4: Open Agent Marketplace for third-party AI marketing agents.
 NEAR Intents Documentation
 
 State of NEAR Q1 2025 – Messari Report
+
+## Versioning
+
+This project follows Semantic Versioning (SemVer). Each production release is tagged with a version number in the format `vMAJOR.MINOR.PATCH`.
+
+- **Major version** increments indicate incompatible API changes
+- **Minor version** increments indicate new functionality in a backward-compatible manner
+- **Patch version** increments indicate backward-compatible bug fixes
+
+For more details on the versioning and release process, please see [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
