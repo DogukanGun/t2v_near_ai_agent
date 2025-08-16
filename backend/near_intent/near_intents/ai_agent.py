@@ -55,12 +55,13 @@ from dotenv import load_dotenv
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Use relative imports to avoid circular imports
-from .near_intents import (ASSET_MAP,  # pylint: disable=wrong-import-position
-                           IntentRequest, create_account_from_dict,
-                           fetch_options, intent_deposit, intent_swap,
-                           register_intent_public_key, register_token_storage,
-                           select_best_option)
+# Import near_intents at the top of the module but after sys.path is modified
+# pylint: disable=wrong-import-position
+from .near_intents import (
+    ASSET_MAP, IntentRequest, create_account_from_dict, fetch_options,
+    intent_deposit, intent_swap, register_intent_public_key, register_token_storage,
+    select_best_option
+)
 
 # Set up logging
 logging.basicConfig(
