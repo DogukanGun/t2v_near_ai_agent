@@ -291,6 +291,15 @@ Output → Replies, videos, analytics results returned on-chain with transparent
 
 State of NEAR Q1 2025 – Messari Report
 
+## Versioning
+
+This project follows Semantic Versioning (SemVer). Each production release is tagged with a version number in the format `vMAJOR.MINOR.PATCH`.
+
+- **Major version** increments indicate incompatible API changes
+- **Minor version** increments indicate new functionality in a backward-compatible manner
+- **Patch version** increments indicate backward-compatible bug fixes
+
+For more details on the versioning and release process, please see [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 ## 🤝 Contributing
 
 We welcome contributions from the community! Here's how you can help:

@@ -11,7 +11,7 @@ from utils.logger import logger
 class EnvironmentManager:
     environment_values: Dict[str, str] = {}
 
-    def __init__(self, env_file_name="./.env"):
+    def __init__(self, env_file_name=".env"):
         env = os.getenv(EnvironmentKeys.OS.value)
         if env == "prod":
             for key in EnvironmentKeys:

@@ -10,16 +10,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from api.controller import auth
+from api.controller import agent, auth
 
 # Load environment variables
 load_dotenv()
 
 # Create FastAPI instance
 app = FastAPI(
-    title="T2V Near AI Agent Backend",
-    description="Backend API for T2V Near AI Agent",
-    version="1.0.0",
+    title="API Project",
+    description="Work in progress",
+    version="0.1",
+    swagger_ui_parameters={"docExpansion": "none"},
 )
 
 # Add CORS middleware
@@ -55,12 +56,9 @@ async def health_check():
     return HealthResponse(status="healthy", message="Service is up and running")
 
 
-routers = [
-    auth.router,
-]
+routers = [auth.router, agent.router]
 for router in routers:  # routers_test
     app.include_router(router)
-
 
 if __name__ == "__main__":
     import uvicorn
