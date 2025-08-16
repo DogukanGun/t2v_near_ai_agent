@@ -1,0 +1,191 @@
+name: Production Deployment & Version Tagging
+
+on:
+  push:
+    branches:
+      - main  # Only run on the main branch
+
+jobs:
+  build_and_tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for version history
+
+      # Backend build
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          
+      - name: Build backend
+        run: |
+          cd backend
+          # Add any build/compile steps here if needed
+          echo "Building backend..."
+          # For example: python -m pytest (if you want to run tests)
+      
+      # Frontend build
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install frontend dependencies
+        run: |
+          cd app
+          npm ci
+          
+      - name: Build frontend
+        run: |
+          cd app
+          npm run build
+      
+      # Deployment would go here (currently not implemented)
+      # - name: Deploy application
+      #   run: echo "Deployment step would go here"
+      
+      - name: Check for release label and notes
+        id: check_label
+        run: |
+          # Check if the latest commit has a release label
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" =~ \[release:([a-z]+)\] ]]; then
+            RELEASE_TYPE="${BASH_REMATCH[1]}"
+            echo "RELEASE_TYPE=${RELEASE_TYPE}" >> $GITHUB_ENV
+          else
+            echo "No release label found in commit message, defaulting to patch release"
+            echo "RELEASE_TYPE=patch" >> $GITHUB_ENV
+          fi
+          
+          # Check for release notes in commit message
+          if [[ "$COMMIT_MSG" =~ \[notes:(.*?)\] ]]; then
+            RELEASE_NOTES="${BASH_REMATCH[1]}"
+            echo "CUSTOM_NOTES<<EOF" >> $GITHUB_ENV
+            echo "${RELEASE_NOTES}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            echo "HAS_CUSTOM_NOTES=true" >> $GITHUB_ENV
+          else
+            echo "HAS_CUSTOM_NOTES=false" >> $GITHUB_ENV
+          fi
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git tag --sort=-v:refname | grep '^v[0-9]*\.[0-9]*\.[0-9]*$' | head -n 1 || echo "v0.0.0")
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
+          echo "Latest tag: ${LATEST_TAG}"
+          
+          # Extract version components
+          if [[ "${LATEST_TAG}" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            echo "MAJOR=${MAJOR}" >> $GITHUB_ENV
+            echo "MINOR=${MINOR}" >> $GITHUB_ENV
+            echo "PATCH=${PATCH}" >> $GITHUB_ENV
+          else
+            echo "MAJOR=0" >> $GITHUB_ENV
+            echo "MINOR=0" >> $GITHUB_ENV
+            echo "PATCH=0" >> $GITHUB_ENV
+          fi
+
+      - name: Determine new version
+        id: new_version
+        run: |
+          if [ "${{ env.RELEASE_TYPE }}" = "major" ]; then
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_VERSION="v${NEW_MAJOR}.0.0"
+          elif [ "${{ env.RELEASE_TYPE }}" = "minor" ]; then
+            NEW_MINOR=$((MINOR + 1))
+            NEW_VERSION="v${MAJOR}.${NEW_MINOR}.0"
+          else
+            NEW_PATCH=$((PATCH + 1))
+            NEW_VERSION="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+          fi
+          
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          echo "New version: ${NEW_VERSION}"
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          if [ "${{ env.HAS_CUSTOM_NOTES }}" = "true" ]; then
+            echo "Using custom release notes from commit message"
+            echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+            echo "${{ env.CUSTOM_NOTES }}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "Generating automated release notes"
+            
+            PREV_TAG="${LATEST_TAG}"
+            if [[ "${PREV_TAG}" == "v0.0.0" ]]; then
+              PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+            fi
+            
+            echo "Generating release notes from ${PREV_TAG} to HEAD"
+            
+            # Generate release notes from PR titles
+            NOTES=$(git log "${PREV_TAG}..HEAD" --pretty=format:"* %s (%h)" --merges | grep -v "Merge pull request")
+            
+            if [[ -z "${NOTES}" ]]; then
+              # Fallback to commit messages if no PRs are found
+              NOTES=$(git log "${PREV_TAG}..HEAD" --pretty=format:"* %s (%h)" --no-merges)
+            fi
+            
+            if [[ -z "${NOTES}" ]]; then
+              # If still no notes, use a template
+              NOTES="## Release ${NEW_VERSION}
+
+### 🚀 New Features
+- 
+
+### 🐛 Bug Fixes
+- 
+
+### 🔧 Improvements
+- 
+
+### 📝 Documentation
+- 
+
+### 🧪 Testing
+- 
+
+### 🔄 CI/CD
+- 
+"
+            fi
+            
+            echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+            echo "${NOTES}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
+
+      - name: Create tag and release
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create and push tag
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a ${NEW_VERSION} -m "Release ${NEW_VERSION}"
+          git push origin ${NEW_VERSION}
+          
+          # Create GitHub release
+          gh release create ${NEW_VERSION} \
+            --title "Release ${NEW_VERSION}" \
+            --notes "${RELEASE_NOTES}" \
+            --target main 
