@@ -10,6 +10,9 @@ class EnvironmentKeys(Enum):
     SECRET_KEY = "SECRET_KEY"
     ALGORITHM = "ALGORITHM"
     OTP_SECRET = "OTP_SECRET"
+    OPEN_ROUTER_KEY = "OPEN_ROUTER_KEY"
+    SIGNER = "SIGNER"
+    ACCOUNT_ID = "ACCOUNT_ID"
 
 
 class TestEnvironmentKeys(Enum):

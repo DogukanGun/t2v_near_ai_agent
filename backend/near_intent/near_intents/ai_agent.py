@@ -3,8 +3,8 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
 
 1. Overview:
    - The AI Agent is designed to automate intent execution on the NEAR mainnet.
-   - It loads an NEAR account using a local key file,registers its public key for intent operations
-     and then performs token operations such as depositing NEAR (if necessary) 
+   - It loads an NEAR account using a local key file, registers its public key for intent
+     operations, and then performs token operations such as depositing NEAR (if necessary)
      and swapping NEAR for another token.
    - The swap process leverages the following workflow:
      a. Build an IntentRequest detailing the input (NEAR) and desired output token.
@@ -20,12 +20,12 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
        • intent_deposit: Send a deposit call for NEAR to be eligible for intent operations.
        • intent_swap: Execute a swap intent by utilizing the intent API.
    - Create the AIAgent class:
-       • __init__: Initialize the agent by loading the account and
-        ensuring that its public key is registered.
-       • deposit_near: (Optional) Ensure that the account has deposited enough NEAR
-        to cover intent deposits.
-       • swap_near_to_token: Call the intent_swap function to execute a swap from NEAR
-        to another token.
+       • __init__: Initialize the agent by loading the account and ensuring that its public key
+         is registered.
+       • deposit_near: (Optional) Ensure that the account has deposited enough NEAR to cover
+         intent deposits.
+       • swap_near_to_token: Call the intent_swap function to execute a swap from NEAR to
+         another token.
    - Add robust logging for step-by-step tracing and error handling.
    - Provide an example usage in the main block to demonstrate:
        • Instantiating the AIAgent with an account file.
@@ -35,28 +35,33 @@ Pseudocode & Detailed Explanation for AI Agent NEAR-to-Token Swap Implementation
 3. Benefits:
    - This design encapsulates NEAR intent execution within an easy-to-use class.
    - Detailed in-line pseudocode and logging boost maintainability and debuggability.
-   - Follows best practices such as separation of concerns 
-    while reusing shared components defined in intents.py.
+   - Follows best practices such as separation of concerns while reusing shared components
+     defined in intents.py.
 
 Note:
-   - This implementation is aligned with the NEAR Defuse Protocol on mainnet, 
-    which describes the use of a solver bus for quoting 
-    and executing token diff intents. For further details, see:
-    https://docs.near-intents.org/defuse-protocol
+   - This implementation is aligned with the NEAR Defuse Protocol on mainnet which describes the use
+     of a solver bus for quoting and executing token diff intents. For further details, see:
+     https://docs.near-intents.org/defuse-protocol
 """
 
+import json
 import logging
 import os
 import sys
+from typing import Callable, Dict, Optional
 
 from dotenv import load_dotenv
-from near_intents import (ASSET_MAP, IntentRequest, account, fetch_options,
-                          intent_deposit, intent_swap,
-                          register_intent_public_key, register_token_storage,
-                          select_best_option)
 
 # Add the parent directory to sys.path so that 'near_intents' can be found
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import near_intents at the top of the module but after sys.path is modified
+# pylint: disable=wrong-import-position
+from .near_intents import (
+    ASSET_MAP, IntentRequest, create_account_from_dict, fetch_options,
+    intent_deposit, intent_swap, register_intent_public_key, register_token_storage,
+    select_best_option
+)
 
 # Set up logging
 logging.basicConfig(
@@ -76,21 +81,22 @@ class AIAgent:
     - Processing AI messages and triggering automatic payments.
     """
 
-    def __init__(self, account_file: str, ai_provider: str = "openai"):
+    def __init__(
+        self, account_data: Dict[str, str], on_sign: Optional[Callable[[], None]] = None
+    ):
         """
         Initialize the agent by:
-        1. Loading the account from the given account file.
+        1. Loading the account from the provided account data.
         2. Registering the account's public key with the intents contract.
-        3. Setting up AI provider for message processing.
-        """
-        if not os.path.exists(account_file):
-            raise FileNotFoundError(
-                f"Account file not found at {account_file}. "
-                "Please ensure the file exists and the path is correct."
-            )
 
-        logging.info("Loading account from file: %s", account_file)
-        self.account = account(account_file)
+        Args:
+            account_data: Dictionary containing account_id and private_key
+            on_sign: Optional callback function to be called when all transactions are completed
+        """
+        self.on_sign = on_sign
+
+        logging.info("Creating account from provided data")
+        self.account = create_account_from_dict(account_data)
 
         # Check if the account exists and has sufficient balance
         try:
@@ -110,7 +116,7 @@ class AIAgent:
                     f"Insufficient balance ({balance_near} NEAR). Minimum required: 0.1 NEAR"
                 )
 
-        except (ValueError, KeyError, TypeError) as e:
+        except Exception as e:
             logging.error("Error checking account state: %s", e)
             raise
 
@@ -118,11 +124,12 @@ class AIAgent:
             "Registering intent public key for account: %s", self.account.account_id
         )
         try:
-            register_intent_public_key(self.account)
+            if ".testnet" not in account_data["account_id"]:
+                register_intent_public_key(self.account)
             logging.info(
                 "Public key registered successfully with intents.near contract"
             )
-        except (ValueError, RuntimeError, OSError) as e:
+        except Exception as e:
             error_str = str(e)
             if "public key already exists" in error_str:
                 logging.info("Public key already registered with intents.near contract")
@@ -157,8 +164,8 @@ class AIAgent:
 
             if balance_near < amount:
                 raise ValueError(
-                    f"Insufficient balance ({balance_near:.4f} NEAR) "
-                    f"for deposit of {amount:.4f} NEAR"
+                    f"Insufficient balance ({balance_near:.4f} NEAR)"
+                    f" for deposit of {amount:.4f} NEAR"
                 )
 
             # First register storage if needed
@@ -167,7 +174,7 @@ class AIAgent:
                     self.account, token, other_account="intents.near"
                 )
                 logging.info("Storage registered for NEAR token")
-            except (ValueError, RuntimeError, OSError) as e:
+            except Exception as e:
                 if "already registered" not in str(e).lower():
                     raise
                 logging.info("Storage already registered for NEAR token")
@@ -175,7 +182,11 @@ class AIAgent:
             # Then deposit NEAR using the provided amount
             intent_deposit(self.account, token, float(amount))  # Ensure amount is float
             logging.info("Deposit transaction submitted successfully")
-        except (ValueError, KeyError, TypeError) as e:
+
+            # Call on_sign callback if provided
+            if self.on_sign:
+                self.on_sign()
+        except Exception as e:
             logging.error("Failed to deposit NEAR: %s", e)
             raise
 
@@ -220,8 +231,7 @@ class AIAgent:
 
             if balance_near < amount_in:
                 raise ValueError(
-                    f"Insufficient balance ({balance_near} NEAR) "
-                    f"for swap of {amount_in} NEAR"
+                    f"Insufficient balance ({balance_near} NEAR) for swap of {amount_in} NEAR"
                 )
 
             # Create intent request and fetch options
@@ -245,8 +255,13 @@ class AIAgent:
             response = intent_swap(self.account, "NEAR", amount_in, target_token)
             logging.info("Swap request submitted successfully")
             logging.debug("Swap response: %s", response)
+
+            # Call on_sign callback if provided
+            if self.on_sign:
+                self.on_sign()
+
             return response
-        except (ValueError, KeyError, TypeError) as e:
+        except Exception as e:
             logging.error("Failed to execute swap: %s", e)
             raise
 
@@ -301,8 +316,16 @@ def main():
     )
 
     try:
-        # Initialize the AI Agent
-        agent = AIAgent(account_path)
+        # Load account data from file for example purposes
+        with open(account_path, "r", encoding="utf-8") as f:
+            account_data = json.load(f)
+
+        # Example of using the callback
+        def on_transaction_complete():
+            logging.info("Transaction completed callback executed")
+
+        # Initialize the AI Agent with account data
+        agent = AIAgent(account_data, on_transaction_complete)
 
         # Deposit NEAR if needed
         logging.info("Submitting a deposit of %.4f NEAR", deposit_amount)
@@ -321,8 +344,8 @@ def main():
     except ValueError as e:
         logging.error("Value error: %s", str(e))
         sys.exit(1)
-    except (RuntimeError, OSError) as e:
-        logging.error("System error: %s", str(e))
+    except Exception as e:
+        logging.error("An error occurred: %s", str(e))
         sys.exit(1)
 
 

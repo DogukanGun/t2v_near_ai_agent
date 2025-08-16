@@ -23,6 +23,10 @@ pydantic>=2.11.7
 pyotp>=2.9.0
 passlib>=1.7.4
 python-jose>=3.5.0
+pynacl>=1.5.0
+base58>=2.1.1
+cffi>=1.17.1
+pycparser>=2.22
 # Note: near-api-py>=0.3.1 has compatibility issues with Python 3.12
 # Only version 0.1.0 is available but has build issues
 # Consider using alternative Near Protocol libraries or downgrading Python version
