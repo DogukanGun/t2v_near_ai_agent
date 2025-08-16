@@ -1,9 +1,10 @@
 name: Production Deployment & Version Tagging
 
 on:
-  push:
+  pull_request:
     branches:
-      - main  # Only run on the main branch
+      - main
+      - dev
 
 jobs:
   build_and_tag:
