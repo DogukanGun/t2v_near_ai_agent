@@ -1,7 +1,6 @@
 from enum import Enum
 
 import pyotp
-
 from utils.constants.environment_keys import EnvironmentKeys
 from utils.environment_manager import EnvironmentManager
 

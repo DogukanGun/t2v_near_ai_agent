@@ -8,15 +8,15 @@ decision making in DeFi operations.
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from langchain.agents import AgentExecutor
 from langchain.agents.agent_types import AgentType
-from langchain.tools import BaseTool
+from langchain.tools import BaseTool, Tool
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
-from utils.constants.environment_keys import EnvironmentKeys
-from utils.environment_manager import EnvironmentManager
+from pydantic import SecretStr
+
 from .ai_agent import AIAgent
 
 # Configure logging
@@ -28,28 +28,31 @@ ACCOUNT = None
 TOOLS = []
 
 
-def initialize_agent(account_path: str) -> None:
+def initialize_agent(
+    account_data: Dict[str, str], onSign: Optional[Callable[[], None]] = None
+) -> None:
     """
-    Initialize the LangChain agent with the given account.
+    Initialize the LangChain agent with the given account data.
 
     Args:
-        account_path: Path to the NEAR account credentials file
+        account_data: Dictionary containing account_id and private_key
+        onSign: Optional callback function to be called when all transactions are completed
     """
     global ACCOUNT
     try:
-        logger.info("Initializing agent with account from: %s", account_path)
-        ACCOUNT = AIAgent(account_path)
+        logger.info("Initializing agent with account: %s", account_data["account_id"])
+        ACCOUNT = AIAgent(account_data, onSign)
     except Exception as e:
         logger.error("Failed to initialize agent: %s", str(e))
         raise
 
 
-def create_deposit_tool() -> BaseTool:
+def create_deposit_tool() -> Tool:
     """
     Create a tool for depositing NEAR tokens.
 
     Returns:
-        BaseTool: A LangChain tool for deposit operations
+        Tool: A LangChain tool for deposit operations
     """
 
     def deposit_near(amount: float) -> Dict[str, Any]:
@@ -67,19 +70,19 @@ def create_deposit_tool() -> BaseTool:
             logger.error("Deposit failed: %s", str(e))
             return {"status": "error", "message": str(e)}
 
-    return BaseTool(
+    return Tool(
         name="deposit_near",
         description="Deposit NEAR tokens for intent operations",
         func=deposit_near,
     )
 
 
-def create_swap_tool() -> BaseTool:
+def create_swap_tool() -> Tool:
     """
     Create a tool for swapping tokens.
 
     Returns:
-        BaseTool: A LangChain tool for swap operations
+        Tool: A LangChain tool for swap operations
     """
 
     def swap_tokens(target_token: str, amount: float) -> Dict[str, Any]:
@@ -87,46 +90,83 @@ def create_swap_tool() -> BaseTool:
             logger.info("Swapping %f NEAR to %s", amount, target_token)
             from .near_intents import register_token_storage
 
-            register_token_storage(ACCOUNT, target_token)
+            register_token_storage(ACCOUNT.account, target_token)
             result = ACCOUNT.swap_near_to_token(target_token, float(amount))
             return {"status": "success", "result": result}
         except Exception as e:
             logger.error("Swap failed: %s", str(e))
             return {"status": "error", "message": str(e)}
 
-    return BaseTool(
+    return Tool(
         name="swap_tokens",
         description="Swap NEAR tokens to another token type",
         func=swap_tokens,
     )
 
 
-def setup_agent(env_manager:EnvironmentManager) -> AgentExecutor:
+def setup_agent_and_run(
+    message: str,
+    key: str,
+    account_data: Dict[str, str],
+    onSign: Optional[Callable[[], None]] = None,
+) -> str | None:
     """
     Set up the LangChain agent with necessary tools and configuration.
+
+    Args:
+        key: OpenAI API key
+        account_data: Dictionary containing account_id and private_key
+        onSign: Optional callback function to be called when all transactions are completed
 
     Returns:
         AgentExecutor: Configured LangChain agent executor
     """
 
-    key = env_manager.get_key(EnvironmentKeys.OPEN_ROUTER_KEY)
-    os.putenv("OPENAI_API_KEY",key)
+    os.putenv("OPENAI_API_KEY", key)
 
-    llm = ChatOpenAI(
-        temperature=0,
-        model="meta-llama/llama-3.2-3b-instruct:free",
+    # Initialize the AI agent with account data
+    initialize_agent(account_data, onSign)
+    from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+    # Create a system prompt with explicit instructions for structured responses
+    system_prompt = """You are a helpful assistant for NEAR Protocol DeFi operations.
+You can help users deposit NEAR tokens and swap tokens on NEAR Protocol.
+Always provide clear explanations of what you're doing.
+
+IMPORTANT: Instead of using tool calls, you must respond in the following JSON format:
+
+For general responses:
+{{
+    "action": "message",
+    "content": "Your helpful message here"
+}}
+
+For deposit operations:
+{{
+    "action": "deposit",
+    "amount": [numeric amount of NEAR to deposit]
+}}
+
+For swap operations:
+{{
+    "action": "swap",
+    "target_token": [token symbol to swap to],
+    "amount": [numeric amount of NEAR to swap]
+}}
+
+Ensure your entire response is valid JSON. Do not include any text before or after the JSON.
+
+"""
+    client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        default_headers={
-            "HTTP-Referer": "https://ao-agents.vercel.app/",
-            "X-Title": "NEAR T2V AI Agent",
-        }
+        api_key=key,
+    )
+    completion = client.chat.completions.create(
+        model="meta-llama/llama-3.2-3b-instruct:free",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": message},
+        ],
     )
 
-    tools = [create_deposit_tool(), create_swap_tool()]
-
-    return AgentExecutor.from_agent_and_tools(
-        agent=llm,
-        agent_type=AgentType.OPENAI_FUNCTIONS,
-        tools=tools,
-        verbose=True,
-    )
+    return completion.choices[0].message.content

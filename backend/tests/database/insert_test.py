@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from pymongo import MongoClient
-
 from utils.database import Database
 
 
