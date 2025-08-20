@@ -62,7 +62,7 @@ export default function MythOSApp() {
   }
 
   return (
-    <div className="flex h-screen bg-white dark:bg-base-100">
+    <div className="flex min-h-screen bg-white dark:bg-base-100">
       {/* Chat History Drawer */}
       <div className={`fixed inset-y-0 left-0 transform ${
         isHistoryOpen ? 'translate-x-0' : '-translate-x-full'

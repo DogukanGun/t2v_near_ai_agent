@@ -1,7 +1,16 @@
 @import url('https://fonts.googleapis.com/css?family=Economica');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+  }
+}
 
 /* Animation Utilities */
 @layer utilities {
@@ -97,6 +106,14 @@
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -124,7 +141,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 1000vh;
+  height: 100%;
   background: linear-gradient(
     45deg,
     rgb(101, 91, 239) 0%,
@@ -218,13 +235,13 @@ body {
     transform: translateY(0) rotate(0deg);
   }
   25% {
-    transform: translateY(-200vh) rotate(90deg);
+    transform: translateY(-20vh) rotate(90deg);
   }
   50% {
-    transform: translateY(-400vh) rotate(180deg);
+    transform: translateY(-40vh) rotate(180deg);
   }
   75% {
-    transform: translateY(-600vh) rotate(270deg);
+    transform: translateY(-60vh) rotate(270deg);
   }
 }
 
