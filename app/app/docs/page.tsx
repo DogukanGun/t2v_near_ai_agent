@@ -194,7 +194,7 @@ export default function DocsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="bg-base-200">
       {/* Header */}
       <div className="bg-primary text-primary-content py-8">
         <div className="container mx-auto px-4">

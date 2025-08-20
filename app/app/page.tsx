@@ -44,18 +44,18 @@ export default function Home() {
   ]
 
   const blockchains = [
-    'Ethereum',
-    'Arbitrum',
-    'Optimism',
-    'Base',
-    'Polygon',
-    'Avalanche',
-    'BNB Chain',
-    'NEAR'
+    'NEAR',
+    'Ethereum (Coming Soon)',
+    'Arbitrum (Coming Soon)',
+    'Optimism (Coming Soon)',
+    'Solana (Coming Soon)',
+    'Polygon (Coming Soon)',
+    'Avalanche (Coming Soon)',
+    'BNB Chain (Coming Soon)',
   ]
 
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <div className="hero min-h-screen gradient-hero">
         <div className="hero-content text-center">
@@ -367,11 +367,11 @@ export default function Home() {
       </div>
 
       {/* Call to Action */}
-      <div className="bg-primary text-primary-content py-16">
+      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4 animate-fade-in">Ready to Transform Your Blockchain Marketing?</h2>
           <p className="mb-8 max-w-2xl mx-auto animate-fade-in animate-delay-100">Join the growing community of blockchain projects leveraging AI-powered autonomous agents for their marketing needs.</p>
-          <button className="btn btn-secondary btn-lg animate-bounce-in animate-delay-200 hover:animate-pulse-soft">Get Started Today</button>
+          <button className="btn bg-white text-indigo-600 hover:bg-indigo-50 border-none btn-lg animate-bounce-in animate-delay-200 hover:animate-pulse-soft">Get Started Today</button>
         </div>
       </div>
 
@@ -398,6 +398,6 @@ export default function Home() {
           <a className="link link-hover transition-all duration-300">Cookie policy</a>
         </div>
       </footer>
-    </main>
+    </div>
   )
 }
