@@ -29,11 +29,16 @@ export default function Navbar() {
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
+          <li className="animate-fade-in"><Link href="/#features" className="hover:bg-primary hover:text-primary-content transition-all duration-300">Features</Link></li>
+          <li className="animate-fade-in animate-delay-100"><Link href="/#features" className="hover:bg-primary hover:text-primary-content transition-all duration-300">How It Works</Link></li>
+          <li className="animate-fade-in animate-delay-200"><Link href="/#testimonials" className="hover:bg-primary hover:text-primary-content transition-all duration-300">Testimonials</Link></li>
+          <li className="animate-fade-in animate-delay-300"><Link href="/#faq" className="hover:bg-primary hover:text-primary-content transition-all duration-300">FAQ</Link></li>
           <li className="animate-fade-in"><Link href={process.env.NODE_ENV === "development" ? "http://localhost:3001" : "https://reply.mythos.co"} className="hover:bg-primary hover:text-primary-content transition-all duration-300">Reply Agent</Link></li>
         </ul>
       </div>
       <div className="navbar-end">
         <ThemeSwitcher />
+        <Link href={process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://agent.mythos.co"} className="btn btn-primary ml-2 animate-bounce-in animate-delay-400 hover:animate-pulse-soft">Launch dApp</Link>
       </div>
     </div>
   );
