@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  twitterAccounts TwitterAccount[]
+  replyJobs       ReplyJob[]
+
+  @@map("users")
+}
+
+model TwitterAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  twitterUsername   String
+  accessToken       String
+  accessTokenSecret String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replyJobs ReplyJob[]
+
+  @@unique([userId, twitterUsername])
+  @@map("twitter_accounts")
+}
+
+model ReplyJob {
+  id                String            @id @default(cuid())
+  userId            String
+  twitterAccountId  String
+  targetTweetId     String?
+  targetUsername    String?
+  keywords          String            // JSON string for array storage
+  replyText         String
+  useAI             Boolean           @default(false)
+  aiTone            String?           // professional, casual, humorous, supportive, promotional
+  aiIncludeHashtags Boolean           @default(false)
+  aiIncludeEmojis   Boolean           @default(false)
+  aiInstructions    String?
+  aiModelId         String?
+  isActive          Boolean           @default(true)
+  maxReplies        Int               @default(10)
+  currentReplies    Int               @default(0)
+  lastProcessedAt   DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  twitterAccount TwitterAccount @relation(fields: [twitterAccountId], references: [id], onDelete: Cascade)
+  replies        Reply[]
+
+  @@map("reply_jobs")
+}
+
+model Reply {
+  id           String   @id @default(cuid())
+  replyJobId   String
+  tweetId      String
+  replyTweetId String
+  content      String
+  successful   Boolean  @default(false)
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  replyJob ReplyJob @relation(fields: [replyJobId], references: [id], onDelete: Cascade)
+
+  @@map("replies")
+}
