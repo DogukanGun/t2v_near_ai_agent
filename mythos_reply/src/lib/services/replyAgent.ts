@@ -87,20 +87,20 @@ export class ReplyAgentService {
           let replyText = job.replyText
 
           // Generate AI reply if enabled
-          if (job.useAI && job.aiConfig) {
+          if (job.useAI) {
             const aiOptions: ReplyGenerationOptions = {
               originalTweet: tweet.text || 'Tweet content not available',
               context: `Replying as ${job.twitterAccount.twitterUsername}`,
-              tone: job.aiConfig.tone,
+              tone: job.aiTone as any,
               maxLength: 280,
-              includeHashtags: job.aiConfig.includeHashtags,
-              includeEmojis: job.aiConfig.includeEmojis,
-              customInstructions: job.aiConfig.customInstructions
+              includeHashtags: job.aiIncludeHashtags,
+              includeEmojis: job.aiIncludeEmojis,
+              customInstructions: job.aiInstructions || undefined
             }
 
             replyText = await this.openRouterService.generateReply(
               aiOptions, 
-              job.aiConfig.modelId
+              job.aiModelId || undefined
             )
           }
 
@@ -162,7 +162,7 @@ export class ReplyAgentService {
     const activeJobs = await prisma.replyJob.findMany({
       where: {
         isActive: true,
-        currentReplies: { lt: prisma.raw('max_replies') }
+        currentReplies: { lt: 10 } // Use a default max value or retrieve from configuration
       },
       include: {
         twitterAccount: true
