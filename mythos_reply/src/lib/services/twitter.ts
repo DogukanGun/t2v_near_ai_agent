@@ -1,6 +1,6 @@
 import OAuth from 'oauth-1.0a'
 import crypto from 'crypto'
-import axios from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 
 export interface TwitterCredentials {
   apiKey: string
@@ -41,19 +41,21 @@ export class TwitterService {
     })
   }
 
-  private getAuthHeader(url: string, method: string, data?: any) {
+  private getAuthHeader(url: string, method: string, data?: any): { Authorization: string } {
     const requestData = {
       url,
       method,
       data
     }
 
-    return this.oauth.toHeader(
+    const header = this.oauth.toHeader(
       this.oauth.authorize(requestData, {
         key: this.credentials.accessToken,
         secret: this.credentials.accessTokenSecret
       })
     )
+
+    return { Authorization: header.Authorization }
   }
 
   async createTweet(tweetData: TweetData): Promise<any> {
@@ -62,10 +64,7 @@ export class TwitterService {
 
     try {
       const response = await axios.post(url, tweetData, {
-        headers: {
-          ...authHeader,
-          'Content-Type': 'application/json'
-        }
+        headers: { ...authHeader, 'Content-Type': 'application/json' }
       })
       return response.data
     } catch (error: any) {
@@ -94,7 +93,10 @@ export class TwitterService {
 
     try {
       const response = await axios.get(url, {
-        headers: authHeader
+        headers: { 
+          ...authHeader, 
+          'Content-Type': 'application/json' 
+        }
       })
       return response.data
     } catch (error: any) {
@@ -109,7 +111,10 @@ export class TwitterService {
 
     try {
       const userResponse = await axios.get(userUrl, {
-        headers: userAuthHeader
+        headers: { 
+          ...userAuthHeader, 
+          'Content-Type': 'application/json' 
+        }
       })
 
       const userId = userResponse.data.data.id
@@ -119,7 +124,10 @@ export class TwitterService {
       const tweetsAuthHeader = this.getAuthHeader(tweetsUrl, 'GET')
 
       const tweetsResponse = await axios.get(tweetsUrl, {
-        headers: tweetsAuthHeader
+        headers: { 
+          ...tweetsAuthHeader, 
+          'Content-Type': 'application/json' 
+        }
       })
 
       return tweetsResponse.data
@@ -134,7 +142,10 @@ export class TwitterService {
 
     try {
       const response = await axios.delete(url, {
-        headers: authHeader
+        headers: { 
+          ...authHeader, 
+          'Content-Type': 'application/json' 
+        }
       })
       return response.data
     } catch (error: any) {
