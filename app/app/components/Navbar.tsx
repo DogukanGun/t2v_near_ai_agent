@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link'
 import ThemeSwitcher from './ThemeSwitcher';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../../lib/contexts/AuthContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = usePathname();
+  const { user, logout, isAuthenticated } = useAuth();
 
   return (
     <div className="navbar bg-base-100 sticky top-0 z-50 shadow-md animate-fade-in">
@@ -33,7 +35,39 @@ export default function Navbar() {
         </ul>
       </div>
       <div className="navbar-end">
-        <ThemeSwitcher />
+        <div className="flex items-center gap-2">
+          {isAuthenticated && user && (
+            <div className="dropdown dropdown-end">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                <div className="w-8 rounded-full bg-primary text-primary-content flex items-center justify-center">
+                  <span className="text-sm font-medium">
+                    {user.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+                <li className="menu-title">
+                  <span>Account</span>
+                </li>
+                <li>
+                  <a className="text-xs opacity-70 cursor-default">
+                    {user.accountId}
+                  </a>
+                </li>
+                <div className="divider my-1"></div>
+                <li>
+                  <button onClick={logout} className="text-error hover:bg-error hover:text-error-content">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
+          <ThemeSwitcher />
+        </div>
       </div>
     </div>
   );
