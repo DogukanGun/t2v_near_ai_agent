@@ -15,6 +15,7 @@ interface AuthContextType {
   login: (userIdentifier: string) => Promise<void>;
   verifyOTP: (username: string, otpCode: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +76,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  const refreshUser = (): void => {
+    const token = authService.getToken();
+    const accountId = authService.getAccountId();
+    
+    if (token && accountId) {
+      const username = accountId.includes('.') ? accountId.split('.')[0] : accountId;
+      setUser({ username, accountId });
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -82,6 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     verifyOTP,
     logout,
+    refreshUser,
   };
 
   return (
