@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { WalletBar } from './components/wallet'
 import { ChatHistory } from './components/chat'
-import { useAuth } from '../lib/contexts/AuthContext'
+import { useProfile } from '../lib/hooks/useProfile'
 import { authService } from '../lib/services/auth'
 
 interface Message {
@@ -21,7 +21,7 @@ interface ChatSession {
 }
 
 export default function MythOSApp() {
-  const { user } = useAuth()
+  const { profile } = useProfile()
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -105,7 +105,7 @@ export default function MythOSApp() {
           </button>
           <div className="flex-1">
             <WalletBar
-              address={user?.accountId || "Loading..."}
+              address={profile?.account_id || "Loading..."}
               balance="1,234.56 NEAR"
               onSwap={() => {}}
               onTransfer={() => {}}
