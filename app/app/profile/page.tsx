@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useProfile } from '../../lib/hooks/useProfile';
 import { profileService, UserProfile } from '../../lib/services/profile';
 import { useAuth } from '../../lib/contexts/AuthContext';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
+  const { profile, isLoading, error: profileError, refetch, updateProfile: updateProfileHook } = useProfile();
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -19,22 +19,17 @@ export default function ProfilePage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      setIsLoading(true);
-      const profileData = await profileService.getProfile();
-      setProfile(profileData);
-      setUsername(profileData.username);
-      setTwitterUsername(profileData.twitter_username || '');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to load profile');
-    } finally {
-      setIsLoading(false);
+    if (profile) {
+      setUsername(profile.username);
+      setTwitterUsername(profile.twitter_username || '');
     }
-  };
+  }, [profile]);
+
+  useEffect(() => {
+    if (profileError) {
+      setError(profileError);
+    }
+  }, [profileError]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,8 +55,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const updatedProfile = await profileService.updateProfile(updates);
-      setProfile(updatedProfile);
+      await updateProfileHook(updates);
       setSuccess('Profile updated successfully!');
       
       // Clear success message after 3 seconds
@@ -110,7 +104,7 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-base-100">
         <div className="text-center">
           <p className="text-error">Failed to load profile</p>
-          <button onClick={loadProfile} className="btn btn-outline btn-sm mt-2">
+          <button onClick={refetch} className="btn btn-outline btn-sm mt-2">
             Retry
           </button>
         </div>
