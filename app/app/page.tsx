@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { WalletBar } from './components/wallet'
 import { ChatHistory } from './components/chat'
+import { useProfile } from '../lib/hooks/useProfile'
+import { authService } from '../lib/services/auth'
 
 interface Message {
   id: string
@@ -19,6 +21,7 @@ interface ChatSession {
 }
 
 export default function MythOSApp() {
+  const { profile } = useProfile()
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -48,17 +51,26 @@ export default function MythOSApp() {
     setMessages(prev => [...prev, newMessage])
     setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const response: Message = {
+    try {
+      const response = await authService.sendMessage(content)
+      const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'This is a simulated AI response. In the real implementation, this would be replaced with actual AI responses.',
+        content: response.data ? JSON.stringify(response.data, null, 2) : 'No response data',
         role: 'assistant',
         timestamp: new Date()
       }
-      setMessages(prev => [...prev, response])
+      setMessages(prev => [...prev, aiMessage])
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        role: 'assistant',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -93,7 +105,7 @@ export default function MythOSApp() {
           </button>
           <div className="flex-1">
             <WalletBar
-              address="near.t...tnet"
+              address={profile?.account_id || "Loading..."}
               balance="1,234.56 NEAR"
               onSwap={() => {}}
               onTransfer={() => {}}

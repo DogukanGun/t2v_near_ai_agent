@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from api.controller import agent, auth
+from api.controller import agent, auth, profile
 
 # Load environment variables
 load_dotenv()
@@ -56,7 +56,7 @@ async def health_check():
     return HealthResponse(status="healthy", message="Service is up and running")
 
 
-routers = [auth.router, agent.router]
+routers = [auth.router, agent.router, profile.router]
 for router in routers:  # routers_test
     app.include_router(router)
 
