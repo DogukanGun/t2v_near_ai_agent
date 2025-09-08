@@ -30,3 +30,24 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
     scopes: List[str] = []
+
+
+class UserProfile(BaseModel):
+    username: str
+    account_id: Optional[str] = None
+    public_key: Optional[str] = None
+    private_key: Optional[str] = None
+    twitter_username: Optional[str] = None
+
+
+class UpdateProfileRequest(BaseModel):
+    username: Optional[str] = None
+    twitter_username: Optional[str] = None
+
+
+class ProfileResponse(BaseModel):
+    username: str
+    account_id: str
+    public_key: str
+    private_key: str
+    twitter_username: Optional[str] = None
