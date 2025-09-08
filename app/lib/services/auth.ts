@@ -4,6 +4,7 @@ interface AuthResponse {
   account_id: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

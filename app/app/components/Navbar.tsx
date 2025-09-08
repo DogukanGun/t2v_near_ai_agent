@@ -3,12 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link'
 import ThemeSwitcher from './ThemeSwitcher';
-import { usePathname } from 'next/navigation';
 import { useAuth } from '../../lib/contexts/AuthContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = usePathname();
   const { user, logout, isAuthenticated } = useAuth();
 
   return (

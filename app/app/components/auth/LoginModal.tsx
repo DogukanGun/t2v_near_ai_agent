@@ -219,7 +219,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <p>New to Myth.OS? An account will be created automatically with your NEAR wallet.</p>
             ) : (
               <div className="space-y-2">
-                <p>Didn't receive the code? Check your spam folder.</p>
+                <p>Did not receive the code? Check your spam folder.</p>
                 <button
                   onClick={handleBackToEmail}
                   className="btn btn-ghost btn-xs"
