@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { WalletBar } from './components/wallet'
 import { ChatHistory } from './components/chat'
-import { useAuth } from '../lib/contexts/AuthContext'
 import { useProfile } from '../lib/hooks/useProfile'
 import { authService } from '../lib/services/auth'
 
@@ -22,7 +21,6 @@ interface ChatSession {
 }
 
 export default function MythOSApp() {
-  const { isAuthenticated } = useAuth()
   const { profile } = useProfile()
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])

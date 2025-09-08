@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../lib/hooks/useProfile';
-import { profileService, UserProfile } from '../../lib/services/profile';
-import { useAuth } from '../../lib/contexts/AuthContext';
+import { profileService } from '../../lib/services/profile';
 
 export default function ProfilePage() {
-  const { isAuthenticated } = useAuth();
   const { profile, isLoading, error: profileError, refetch, updateProfile: updateProfileHook } = useProfile();
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState('');
@@ -40,6 +38,7 @@ export default function ProfilePage() {
     setSuccess('');
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updates: any = {};
       
       if (username !== profile.username) {

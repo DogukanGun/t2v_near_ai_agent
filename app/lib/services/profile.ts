@@ -96,7 +96,7 @@ class ProfileService {
   async copyPrivateKeyToClipboard(privateKey: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(privateKey);
-    } catch (error) {
+    } catch (_) {
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = privateKey;
