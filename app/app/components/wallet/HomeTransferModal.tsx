@@ -124,7 +124,7 @@ export const HomeTransferModal: React.FC<HomeTransferModalProps> = ({
             />
             <label className="label">
               <span className="label-text-alt text-gray-500">
-                Enter the recipient's NEAR account ID
+                Enter the recipient&apos;s NEAR account ID
               </span>
             </label>
           </div>

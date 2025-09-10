@@ -121,7 +121,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               <h3 className="font-bold">Transaction Info</h3>
               <div className="text-xs">
                 This will transfer NEAR tokens from your external wallet to your internal wallet. 
-                You'll need to approve the transaction in your connected wallet.
+                You&apos;ll need to approve the transaction in your connected wallet.
               </div>
             </div>
           </div>
