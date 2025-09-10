@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from './components/Navbar'
 import { AuthProvider } from '../lib/contexts/AuthContext'
+import { WalletProvider } from '../lib/contexts/WalletContext'
 import { AuthGuard } from './components/AuthGuard'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,14 +25,16 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} min-h-screen`}>
         <AuthProvider>
-          <AuthGuard>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <main className="flex-1">
-                {children}
-              </main>
-            </div>
-          </AuthGuard>
+          <WalletProvider>
+            <AuthGuard>
+              <div className="min-h-screen flex flex-col">
+                <Navbar />
+                <main className="flex-1">
+                  {children}
+                </main>
+              </div>
+            </AuthGuard>
+          </WalletProvider>
         </AuthProvider>
       </body>
     </html>

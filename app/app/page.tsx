@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { WalletBar } from './components/wallet'
+import { WalletBar, SwapModal, HomeTransferModal } from './components/wallet'
 import { ChatHistory } from './components/chat'
 import { useProfile } from '../lib/hooks/useProfile'
 import { authService } from '../lib/services/auth'
@@ -25,6 +25,9 @@ export default function MythOSApp() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
+  const [notification, setNotification] = useState('')
   const [sessions] = useState<ChatSession[]>([
     {
       id: '1',
@@ -73,6 +76,16 @@ export default function MythOSApp() {
     }
   }
 
+  const handleSwapSuccess = (txHash: string) => {
+    setNotification(`Swap completed successfully! Transaction: ${txHash.substring(0, 10)}...`)
+    setTimeout(() => setNotification(''), 5000)
+  }
+
+  const handleTransferSuccess = (txHash: string) => {
+    setNotification(`Transfer completed successfully! Transaction: ${txHash.substring(0, 10)}...`)
+    setTimeout(() => setNotification(''), 5000)
+  }
+
   return (
     <div className="flex min-h-screen bg-white dark:bg-base-100">
       {/* Chat History Drawer */}
@@ -93,6 +106,16 @@ export default function MythOSApp() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
+        {/* Success Notification */}
+        {notification && (
+          <div className="alert alert-success mx-4 mt-4">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{notification}</span>
+          </div>
+        )}
+
         {/* Top Bar */}
         <div className="p-4 flex items-center gap-4">
           <button
@@ -107,8 +130,8 @@ export default function MythOSApp() {
             <WalletBar
               address={profile?.account_id || "Loading..."}
               balance="1,234.56 NEAR"
-              onSwap={() => {}}
-              onTransfer={() => {}}
+              onSwap={() => setIsSwapModalOpen(true)}
+              onTransfer={() => setIsTransferModalOpen(true)}
             />
           </div>
         </div>
@@ -166,6 +189,20 @@ export default function MythOSApp() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <SwapModal
+        isOpen={isSwapModalOpen}
+        onClose={() => setIsSwapModalOpen(false)}
+        onSwapSuccess={handleSwapSuccess}
+      />
+
+      <HomeTransferModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        fromAccountId={profile?.account_id || ''}
+        onTransferSuccess={handleTransferSuccess}
+      />
     </div>
   )
 }
