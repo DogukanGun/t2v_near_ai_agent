@@ -291,3 +291,6 @@ body {
     transform: translateY(0);
   }
 }
+
+/* NEAR Wallet Selector Modal Styles */
+@import "@near-wallet-selector/modal-ui/styles.css";
