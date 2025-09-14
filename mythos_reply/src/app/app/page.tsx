@@ -6,10 +6,10 @@ export default function AppPage() {
   const [tweetText, setTweetText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [message, setMessage] = useState('');
-  const [replyJobs, setReplyJobs] = useState([]);
+  const [replyJobs, setReplyJobs] = useState<any[]>([]);
   const [targetingPrompt, setTargetingPrompt] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResults, setAnalysisResults] = useState(null);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
 
   useEffect(() => {
     fetchReplyJobs();
@@ -23,7 +23,7 @@ export default function AppPage() {
         setReplyJobs(jobs);
       }
     } catch (error) {
-      console.error('Failed to fetch reply jobs:', error);
+      console.error('Failed to fetch reply jobs:', error instanceof Error ? error.message : 'Unknown error');
     }
   };
 
@@ -38,7 +38,7 @@ export default function AppPage() {
       setMessage('Tweet posted successfully! (Demo mode)');
       setTweetText('');
     } catch (error) {
-      setMessage('Error posting tweet');
+      setMessage(`Error posting tweet: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsPosting(false);
     }
@@ -85,7 +85,7 @@ export default function AppPage() {
       setMessage('Analysis complete! Found relevant opportunities.');
       
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
+      setMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -153,7 +153,7 @@ export default function AppPage() {
                 <div>
                   <span className="font-medium text-purple-700">Target Keywords:</span>
                   <div className="mt-1">
-                    {analysisResults.strategy.keywords?.map((keyword, idx) => (
+                    {analysisResults.strategy.keywords?.map((keyword: string, idx: number) => (
                       <span key={idx} className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded mr-1 mb-1 text-xs">
                         {keyword}
                       </span>
@@ -163,7 +163,7 @@ export default function AppPage() {
                 <div>
                   <span className="font-medium text-blue-700">Hashtags:</span>
                   <div className="mt-1">
-                    {analysisResults.strategy.hashtags?.map((tag, idx) => (
+                    {analysisResults.strategy.hashtags?.map((tag: string, idx: number) => (
                       <span key={idx} className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded mr-1 mb-1 text-xs">
                         #{tag}
                       </span>
