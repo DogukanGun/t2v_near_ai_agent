@@ -55,9 +55,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(filteredTemplates);
 
   } catch (error) {
-    console.error('Templates GET error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch templates' },
       { status: 500 }
     );
   }
@@ -90,9 +89,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newTemplate, { status: 201 });
 
   } catch (error) {
-    console.error('Templates POST error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to create template' },
       { status: 500 }
     );
   }

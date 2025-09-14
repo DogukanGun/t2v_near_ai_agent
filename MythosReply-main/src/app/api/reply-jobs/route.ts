@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { AuthService } from '@/lib/services/auth'
+import { prisma } from '@/lib/database'
 
 /**
  * @swagger
@@ -85,87 +87,145 @@ import { NextRequest, NextResponse } from 'next/server'
  *         description: Unauthorized
  */
 
-// Mock data store for development
-const replyJobs: any[] = [];
+async function getAuthUser(request: NextRequest) {
+  const token = request.headers.get('authorization')?.replace('Bearer ', '')
+  if (!token) {
+    throw new Error('No token provided')
+  }
+  return await AuthService.getUserFromToken(token)
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const processedJobs = replyJobs.map(job => ({
+    const user = await getAuthUser(request)
+
+    const replyJobs = await prisma.replyJob.findMany({
+      where: { userId: user.id },
+      include: {
+        twitterAccount: {
+          select: {
+            twitterUsername: true
+          }
+        },
+        replies: {
+          select: {
+            id: true,
+            successful: true,
+            createdAt: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+    // Parse keywords and targetUsernames JSON back to arrays
+    const processedJobs = replyJobs.map((job: any) => ({
       ...job,
       keywords: JSON.parse(job.keywords || '[]'),
-      targetUsernames: job.targetUsernames ? JSON.parse(job.targetUsernames) : null
-    }));
+      targetUsernames: JSON.parse(job.targetUsernames || '[]')
+    }))
 
-    return NextResponse.json(processedJobs);
-  } catch (error) {
+    return NextResponse.json(processedJobs)
+  } catch (error: any) {
+    if (error.message === 'No token provided' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Failed to fetch reply jobs' },
+      { error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const user = await getAuthUser(request)
+    const body = await request.json()
     const { 
       twitterAccountId, 
       targetTweetId, 
       targetUsername, 
-      targetUsernames = [], 
+      targetUsernames = [],
       keywords = [], 
       replyText, 
       maxReplies = 10,
       useAI = false,
       aiConfig = {}
-    } = body;
+    } = body
 
     if (!twitterAccountId || !replyText) {
       return NextResponse.json(
         { error: 'Twitter account ID and reply text are required' },
         { status: 400 }
-      );
+      )
     }
 
-    if (!targetTweetId && !targetUsername && targetUsernames.length === 0 && keywords.length === 0) {
+    // Handle backward compatibility and new multiple usernames
+    const finalTargetUsernames = targetUsernames.length > 0 ? targetUsernames : (targetUsername ? [targetUsername] : [])
+
+    if (!targetTweetId && finalTargetUsernames.length === 0 && keywords.length === 0) {
       return NextResponse.json(
-        { error: 'Must specify either target tweet ID, target username(s), or keywords' },
+        { error: 'Must specify either target tweet ID, target usernames, or keywords' },
         { status: 400 }
-      );
+      )
     }
 
-    const replyJob = {
-      id: Date.now().toString(),
-      userId: 'mock_user_id',
-      twitterAccountId,
-      targetTweetId,
-      targetUsername,
-      targetUsernames: JSON.stringify(targetUsernames),
-      keywords: JSON.stringify(keywords),
-      replyText,
-      maxReplies,
-      currentReplies: 0,
-      useAI,
-      aiTone: useAI ? aiConfig.tone || 'casual' : null,
-      aiIncludeHashtags: useAI ? aiConfig.includeHashtags || false : false,
-      aiIncludeEmojis: useAI ? aiConfig.includeEmojis || false : false,
-      aiInstructions: useAI ? aiConfig.customInstructions : null,
-      aiModelId: useAI ? aiConfig.modelId : null,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      twitterAccount: {
-        twitterUsername: 'demo_user'
+    // Verify the Twitter account belongs to the user
+    const twitterAccount = await prisma.twitterAccount.findFirst({
+      where: {
+        id: twitterAccountId,
+        userId: user.id
       }
-    };
+    })
 
-    replyJobs.push(replyJob);
+    if (!twitterAccount) {
+      return NextResponse.json(
+        { error: 'Twitter account not found or does not belong to user' },
+        { status: 404 }
+      )
+    }
 
-    return NextResponse.json(replyJob, { status: 201 });
-  } catch (error) {
+    const replyJob = await prisma.replyJob.create({
+      data: {
+        userId: user.id,
+        twitterAccountId,
+        targetTweetId,
+        targetUsername: finalTargetUsernames.length === 1 ? finalTargetUsernames[0] : null, // Keep for backward compatibility
+        targetUsernames: JSON.stringify(finalTargetUsernames),
+        keywords: JSON.stringify(keywords),
+        replyText,
+        maxReplies,
+        useAI,
+        aiTone: useAI ? aiConfig.tone || 'casual' : null,
+        aiIncludeHashtags: useAI ? aiConfig.includeHashtags || false : false,
+        aiIncludeEmojis: useAI ? aiConfig.includeEmojis || false : false,
+        aiInstructions: useAI ? aiConfig.customInstructions : null,
+        aiModelId: useAI ? aiConfig.modelId : null
+      },
+      include: {
+        twitterAccount: {
+          select: {
+            twitterUsername: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(replyJob, { status: 201 })
+  } catch (error: any) {
+    if (error.message === 'No token provided' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create reply job' },
+      { error: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }

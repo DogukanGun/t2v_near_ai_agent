@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  twitterAccounts TwitterAccount[]
+  replyJobs       ReplyJob[]
+
+  @@map("users")
+}
+
+model TwitterAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  twitterUsername   String
+  accessToken       String
+  accessTokenSecret String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replyJobs ReplyJob[]
+
+  @@unique([userId, twitterUsername])
+  @@map("twitter_accounts")
+}
+
+model ReplyJob {
+  id                String            @id @default(cuid())
+  userId            String
+  twitterAccountId  String
+  targetTweetId     String?
+  targetUsername    String?           // Deprecated: use targetUsernames
+  targetUsernames   String?           // JSON string for multiple usernames
+  keywords          String            // JSON string for array storage
+  replyText         String
+  useAI             Boolean           @default(false)
+  aiTone            String?           // professional, casual, humorous, supportive, promotional
+  aiIncludeHashtags Boolean           @default(false)
+  aiIncludeEmojis   Boolean           @default(false)
+  aiInstructions    String?
+  aiModelId         String?
+  isActive          Boolean           @default(true)
+  maxReplies        Int               @default(10)
+  currentReplies    Int               @default(0)
+  lastProcessedAt   DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  twitterAccount TwitterAccount @relation(fields: [twitterAccountId], references: [id], onDelete: Cascade)
+  replies        Reply[]
+
+  @@map("reply_jobs")
+}
+
+model Reply {
+  id           String   @id @default(cuid())
+  replyJobId   String
+  tweetId      String
+  replyTweetId String
+  content      String
+  successful   Boolean  @default(false)
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  replyJob ReplyJob @relation(fields: [replyJobId], references: [id], onDelete: Cascade)
+
+  @@map("replies")
+}
+
+model ScrapedTweet {
+  id              String   @id @default(cuid())
+  tweetId         String   @unique
+  authorUsername  String
+  authorId        String
+  content         String
+  createdAt       DateTime
+  scrapedAt       DateTime @default(now())
+  
+  // Engagement metrics
+  likeCount       Int      @default(0)
+  retweetCount    Int      @default(0)
+  replyCount      Int      @default(0)
+  quoteCount      Int      @default(0)
+  
+  // Analysis data
+  sentiment       String?  // positive, negative, neutral
+  sentimentScore  Float?   // -1 to 1
+  topics          String?  // JSON array of detected topics
+  hashtags        String?  // JSON array of hashtags
+  mentions        String?  // JSON array of mentions
+  urls            String?  // JSON array of URLs
+  
+  // Language and engagement
+  language        String?
+  isRetweet       Boolean  @default(false)
+  retweetedFrom   String?
+  
+  // Source tracking
+  sourceJobId     String?
+  sourceKeywords  String?  // Keywords that matched this tweet
+  
+  analyses TweetAnalysis[]
+
+  @@map("scraped_tweets")
+}
+
+model TweetAnalysis {
+  id            String   @id @default(cuid())
+  tweetId       String
+  analysisType  String   // sentiment, engagement, topic, trend
+  result        String   // JSON result data
+  confidence    Float?   // 0-1 confidence score
+  metadata      String?  // Additional metadata
+  createdAt     DateTime @default(now())
+  
+  tweet ScrapedTweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  
+  @@map("tweet_analyses")
+}
+
+model ProfileAnalytics {
+  id                String   @id @default(cuid())
+  username          String   @unique
+  userId            String
+  displayName       String?
+  bio               String?
+  followersCount    Int      @default(0)
+  followingCount    Int      @default(0)
+  tweetCount        Int      @default(0)
+  listedCount       Int      @default(0)
+  verified          Boolean  @default(false)
+  
+  // Analytics data
+  avgLikesPerTweet  Float?
+  avgRepliesPerTweet Float?
+  avgRetweetsPerTweet Float?
+  engagementRate    Float?
+  
+  // Activity patterns
+  mostActiveHours   String?  // JSON array of most active hours
+  postingFrequency  Float?   // tweets per day average
+  
+  // Content analysis
+  topTopics         String?  // JSON array of most discussed topics
+  sentimentTrend    String?  // JSON time series of sentiment
+  
+  lastUpdated       DateTime @default(now())
+  
+  @@map("profile_analytics")
+}
+
+model OAuthState {
+  id            String   @id @default(cuid())
+  userId        String
+  state         String   @unique
+  requestToken  String
+  requestSecret String
+  callbackUrl   String?
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  
+  @@map("oauth_states")
+}
+
+model WaitlistEntry {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  company     String?
+  useCase     String?
+  twitterHandle String?
+  referralSource String?
+  priority    String   @default("normal") // normal, high, premium
+  status      String   @default("pending") // pending, invited, registered
+  
+  // Template and customization preferences
+  preferredTemplates String? // JSON array of template IDs
+  customSymbols     String?  // JSON object for custom symbols/emojis
+  replyStyle        String?  // casual, professional, witty, supportive, technical
+  formatPreferences String?  // JSON for format preferences
+  
+  metadata    String?  // JSON for additional data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  invitedAt   DateTime?
+  
+  @@map("waitlist_entries")
+}
+
+model ReplyTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String   // greeting, question, support, promotional, technical
+  template    String   // Template with placeholders
+  variables   String   // JSON array of available variables
+  symbols     String?  // JSON object of symbols used
+  tone        String   // casual, professional, witty, supportive, technical
+  isActive    Boolean  @default(true)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("reply_templates")
+}

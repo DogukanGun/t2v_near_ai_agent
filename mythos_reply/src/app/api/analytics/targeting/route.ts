@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Targeting API - Error:', error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Targeting analysis failed" }, { status: 500 });
   }
 }
