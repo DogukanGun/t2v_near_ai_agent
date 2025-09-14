@@ -1,127 +1,102 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { toast } from 'react-hot-toast'
-
-interface LoginForm {
-  emailOrUsername: string
-  password: string
-}
+import { useState } from 'react';
+import Link from 'next/link';
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const onSubmit = async (data: LoginForm) => {
-    setLoading(true)
-    console.log('Submitting login data:', data) // Debug log
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage('');
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const result = await response.json()
-      console.log('Server response:', result) // Debug log
+      const data = await response.json();
 
-      if (!response.ok) {
-        console.log('Login failed with status:', response.status, 'Error:', result.error) // Debug log
-        throw new Error(result.error || 'Login failed')
+      if (response.ok) {
+        setMessage('Login successful!');
+        // Redirect to dashboard or store token
+      } else {
+        setMessage(data.error || 'Login failed');
       }
-
-      // Store token and redirect
-      localStorage.setItem('token', result.token)
-      toast.success('Login successful!')
-      console.log('Redirecting to dashboard...')
-      
-      // Use window.location for reliable redirect
-      setTimeout(() => {
-        window.location.href = '/dashboard'
-      }, 1000)
-    } catch (error: any) {
-      toast.error(error.message || 'Login failed')
+    } catch (error) {
+      setMessage('An error occurred during login');
     } finally {
-      setLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to MythosReply
+            Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/auth/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              create a new account
-            </Link>
-          </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="emailOrUsername" className="sr-only">
-                Email or Username
-              </label>
+              <label htmlFor="email" className="sr-only">Email address</label>
               <input
-                {...register('emailOrUsername', { 
-                  required: 'Email or username is required'
-                })}
-                type="text"
-                autoComplete="off"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address or username"
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="relative block w-full px-3 py-2 border border-gray-300 rounded-t-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Email address"
               />
-              {errors.emailOrUsername && (
-                <p className="mt-1 text-sm text-red-600">{errors.emailOrUsername.message}</p>
-              )}
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
+              <label htmlFor="password" className="sr-only">Password</label>
               <input
-                {...register('password', { required: 'Password is required' })}
+                id="password"
+                name="password"
                 type="password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="relative block w-full px-3 py-2 border border-gray-300 rounded-b-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Password"
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-              )}
             </div>
           </div>
+
+          {message && (
+            <div className={`p-3 rounded-md ${message.includes('successful') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+              {message}
+            </div>
+          )}
 
           <div>
             <button
               type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400"
             >
-              {loading ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              ) : (
-                'Sign in'
-              )}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
 
           <div className="text-center">
-            <Link href="/" className="text-sm text-indigo-600 hover:text-indigo-500">
-              ← Back to home
+            <Link href="/auth/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Don't have an account? Sign up
             </Link>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }

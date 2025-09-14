@@ -1,0 +1,300 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 253, 242, 248;
+  --background-end-rgb: 240, 249, 255;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(135deg, #fdf2f8 0%, #f0f9ff 50%, #fce7f3 100%);
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center space-x-2 border border-gray-300 hover:border-gray-400;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary-500 text-primary-600 hover:bg-primary-500 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center space-x-2;
+  }
+  
+  .card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-6 hover:border-primary-300 transition-all duration-300 hover:shadow-xl shadow-md;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-500 to-accent-600 bg-clip-text text-transparent;
+  }
+  
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Pixel Cat Mascot */
+.pixel-cat {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  image-rendering: pixelated;
+  transform: scale(1.2);
+}
+
+.cat-body {
+  width: 40px;
+  height: 40px;
+  background: #00ff00;
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  border-radius: 2px;
+  box-shadow: 
+    0 0 0 2px #00ff00,
+    2px 0 0 2px #00ff00,
+    4px 0 0 2px #00ff00,
+    6px 0 0 2px #00ff00,
+    8px 0 0 2px #00ff00,
+    10px 0 0 2px #00ff00,
+    12px 0 0 2px #00ff00,
+    14px 0 0 2px #00ff00,
+    16px 0 0 2px #00ff00,
+    18px 0 0 2px #00ff00,
+    20px 0 0 2px #00ff00,
+    22px 0 0 2px #00ff00,
+    24px 0 0 2px #00ff00,
+    26px 0 0 2px #00ff00,
+    28px 0 0 2px #00ff00,
+    30px 0 0 2px #00ff00;
+}
+
+.cat-face {
+  width: 32px;
+  height: 28px;
+  background: #00ff00;
+  position: absolute;
+  top: 8px;
+  left: 14px;
+  border-radius: 1px;
+}
+
+.cat-ears {
+  position: absolute;
+  top: 4px;
+  left: 14px;
+}
+
+.cat-ears::before,
+.cat-ears::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #00ff00;
+  position: absolute;
+  border-radius: 1px;
+}
+
+.cat-ears::before {
+  left: 0;
+  transform: rotate(45deg);
+}
+
+.cat-ears::after {
+  right: -16px;
+  transform: rotate(45deg);
+}
+
+.cat-eyes {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+}
+
+.cat-eyes::before,
+.cat-eyes::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #333;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.cat-eyes::before {
+  left: 0;
+}
+
+.cat-eyes::after {
+  right: -12px;
+}
+
+.cat-mouth {
+  position: absolute;
+  top: 26px;
+  left: 28px;
+  width: 4px;
+  height: 2px;
+  background: #333;
+  border-radius: 0 0 50% 50%;
+}
+
+.cat-legs {
+  position: absolute;
+  bottom: -8px;
+  left: 16px;
+}
+
+.cat-legs::before,
+.cat-legs::after {
+  content: '';
+  width: 6px;
+  height: 8px;
+  background: #00ff00;
+  position: absolute;
+  border-radius: 1px;
+}
+
+.cat-legs::before {
+  left: 0;
+}
+
+.cat-legs::after {
+  right: -16px;
+}
+
+.pixel-cat:hover {
+  transform: scale(1.4);
+  transition: transform 0.3s ease;
+}
+
+/* Myth.os Logo */
+.mythos-logo {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #ff6b8a 0%, #ff8585 25%, #ff9e7a 50%, #ffb26f 75%, #ffc764 100%);
+  padding: 12px 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(255, 107, 138, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mythos-logo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255, 107, 138, 0.4);
+}
+
+.mythos-logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+.mythos-logo-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-right: 8px;
+  letter-spacing: -0.5px;
+}
+
+.mythos-logo-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.mythos-logo-icon::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 8px solid #ff6b8a;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  margin-left: 2px;
+}
+
+.mythos-logo-small {
+  padding: 8px 16px;
+  border-radius: 12px;
+}
+
+.mythos-logo-small .mythos-logo-text {
+  font-size: 16px;
+  margin-right: 6px;
+}
+
+.mythos-logo-small .mythos-logo-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.mythos-logo-small .mythos-logo-icon::after {
+  border-left: 6px solid #ff6b8a;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  margin-left: 1px;
+}
