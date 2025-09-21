@@ -2,7 +2,6 @@
 const nextConfig = {
   // Performance optimizations for mobile
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@near-wallet-selector/core'],
   },
   // Code splitting and bundle optimization
@@ -46,4 +45,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+export default nextConfig

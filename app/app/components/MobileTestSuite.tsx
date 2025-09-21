@@ -115,7 +115,7 @@ export default function MobileTestSuite() {
   useEffect(() => {
     // Auto-run tests on mount
     runMobileTests()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getStatusIcon = (status: TestResult['status']) => {
     switch (status) {

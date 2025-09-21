@@ -12,13 +12,14 @@ const DynamicThemeSwitcher = dynamic(
   }
 )
 
-const DynamicWalletComponents = dynamic(
-  () => import('./wallet/WalletConnectionStatus'),
-  { 
-    ssr: false,
-    loading: () => <div className="w-full h-12 bg-base-300 rounded animate-pulse" />
-  }
-)
+// Dynamic wallet components - only import if they exist
+// const DynamicWalletComponents = dynamic(
+//   () => import('./wallet/WalletConnectionStatus'),
+//   { 
+//     ssr: false,
+//     loading: () => <div className="w-full h-12 bg-base-300 rounded animate-pulse" />
+//   }
+// )
 
 // Mobile-optimized loading states
 export function MobileLoader() {
@@ -65,4 +66,4 @@ export function OptimizedComponent({
 }
 
 // Export optimized components
-export { DynamicThemeSwitcher, DynamicWalletComponents }
+export { DynamicThemeSwitcher }

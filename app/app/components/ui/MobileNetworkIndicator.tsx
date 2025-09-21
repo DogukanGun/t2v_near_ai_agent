@@ -20,7 +20,7 @@ export default function MobileNetworkIndicator() {
       <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-warning-content' : 'bg-error-content'}`}></div>
       
       {!isOnline ? (
-        <span>You're offline. Some features may be limited.</span>
+        <span>You&apos;re offline. Some features may be limited.</span>
       ) : isSlowConnection ? (
         <span>Slow connection detected ({effectiveType}). Consider using Wi-Fi.</span>
       ) : null}
