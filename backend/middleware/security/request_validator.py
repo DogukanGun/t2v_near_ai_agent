@@ -218,3 +218,26 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
                     status_code=400,
                     detail="Suspicious content detected in request headers"
                 )
+
+    def _contains_suspicious_patterns(self, value: str) -> bool:
+        """Check if value contains suspicious patterns."""
+        if not isinstance(value, str):
+            return False
+        
+        suspicious_patterns = [
+            r'<script[^>]*>.*?</script>',
+            r'javascript:',
+            r'vbscript:',
+            r'eval\s*\(',
+            r'expression\s*\(',
+            r"(\s|^)(union|select|insert|delete|update|drop)\s",
+            r"[;&|`$(){}[\]<>]",
+            r"\.\./",
+        ]
+        
+        value_lower = value.lower()
+        for pattern in suspicious_patterns:
+            if re.search(pattern, value_lower, re.IGNORECASE):
+                return True
+        
+        return False
