@@ -15,6 +15,8 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       setIsLoginModalOpen(true);
+    } else if (isAuthenticated) {
+      setIsLoginModalOpen(false);
     }
   }, [isLoading, isAuthenticated]);
 
@@ -40,18 +42,21 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
+  // Show main app only if authenticated
+  if (isAuthenticated) {
+    return <>{children}</>;
+  }
+
+  // Show login modal if not authenticated
   return (
-    <>
-      {children}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={handleModalClose}
-        onLogin={login}
-        onVerifyOTP={async (username: string, otpCode: string) => {
-          await verifyOTP(username, otpCode);
-          handleLoginSuccess();
-        }}
-      />
-    </>
+    <LoginModal
+      isOpen={isLoginModalOpen}
+      onClose={handleModalClose}
+      onLogin={login}
+      onVerifyOTP={async (username: string, otpCode: string) => {
+        await verifyOTP(username, otpCode);
+        handleLoginSuccess();
+      }}
+    />
   );
 }; 
