@@ -101,7 +101,7 @@ export default function MythOSApp() {
       } transition-transform duration-300 ease-in-out z-30 md:relative md:translate-x-0`}>
         <ChatHistory
           sessions={sessions}
-          activeSessionId={null}
+          activeSessionId={undefined}
           onSessionSelect={() => {}}
           onNewChat={() => {
             setMessages([])
