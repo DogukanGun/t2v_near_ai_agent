@@ -5,6 +5,8 @@ import Navbar from './components/Navbar'
 import { AuthProvider } from '../lib/contexts/AuthContext'
 import { WalletProvider } from '../lib/contexts/WalletContext'
 import { AuthGuard } from './components/AuthGuard'
+import ServiceWorkerRegistration from './components/ServiceWorkerRegistration'
+import MobileNetworkIndicator from './components/ui/MobileNetworkIndicator'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,16 +23,30 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Myth.OS" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="color-scheme" content="light dark" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
       </head>
-      <body className={`${inter.className} min-h-screen`}>
+      <body className={`${inter.className} min-h-screen bg-base-100 text-base-content overflow-x-hidden`}>
+        <ServiceWorkerRegistration />
+        <MobileNetworkIndicator />
         <AuthProvider>
           <WalletProvider>
             <AuthGuard>
-              <div className="min-h-screen flex flex-col">
+              <div className="min-h-screen flex flex-col max-w-full">
                 <Navbar />
-                <main className="flex-1">
-                  {children}
+                <main className="flex-1 w-full px-2 sm:px-4 md:px-6 lg:px-8">
+                  <div className="max-w-7xl mx-auto w-full">
+                    {children}
+                  </div>
                 </main>
               </div>
             </AuthGuard>
