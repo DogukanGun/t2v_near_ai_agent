@@ -5,6 +5,7 @@ Production-ready CORS configuration with environment-based settings.
 import os
 from typing import List, Union
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 
 class CORSConfig:
@@ -91,19 +92,13 @@ class CORSConfig:
         return app
 
 
-class SecurityCORSMiddleware(CORSMiddleware):
+class SecurityCORSMiddleware(BaseHTTPMiddleware):
     """Enhanced CORS middleware with additional security features."""
 
     def __init__(self, app, **kwargs):
-        # Add security-focused defaults
-        security_defaults = {
-            "allow_credentials": True,
-            "max_age": 86400,
-        }
-        
-        # Merge with provided kwargs
-        final_kwargs = {**security_defaults, **kwargs}
-        super().__init__(app, **final_kwargs)
+        super().__init__(app)
+        # Store CORS configuration
+        self.cors_config = kwargs
 
     async def dispatch(self, request, call_next):
         """Enhanced CORS handling with security logging."""
@@ -111,9 +106,11 @@ class SecurityCORSMiddleware(CORSMiddleware):
         
         # Log suspicious CORS requests in production
         if os.getenv("ENVIRONMENT") == "production" and origin:
-            allowed_origins = getattr(self, "allow_origins", [])
+            allowed_origins = self.cors_config.get("allow_origins", [])
             if origin not in allowed_origins and allowed_origins != ["*"]:
                 # Log potential CORS attack
                 print(f"SECURITY: Blocked CORS request from unauthorized origin: {origin}")
         
-        return await super().dispatch(request, call_next)
+        # Process the request
+        response = await call_next(request)
+        return response
