@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { WalletBar, SwapModal, HomeTransferModal } from './components/wallet'
 import { ChatHistory } from './components/chat'
 import { useProfile } from '../lib/hooks/useProfile'
@@ -28,20 +28,27 @@ export default function MythOSApp() {
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
   const [notification, setNotification] = useState('')
-  const [sessions] = useState<ChatSession[]>([
-    {
-      id: '1',
-      title: 'Getting Started with NEAR',
-      lastMessage: 'How can I create a NEAR wallet...',
-      timestamp: new Date('2024-03-10')
-    },
-    {
-      id: '2',
-      title: 'Token Swap Guide',
-      lastMessage: 'What is the current exchange ...',
-      timestamp: new Date('2024-03-11')
+  const [sessions] = useState<ChatSession[]>([])
+
+  // Load messages from localStorage on component mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chatMessages')
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages)
+        setMessages(parsedMessages)
+      } catch (error) {
+        console.error('Failed to load chat history:', error)
+      }
     }
-  ])
+  }, [])
+
+  // Save messages to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages))
+    }
+  }, [messages])
 
   const handleSendMessage = async (content: string) => {
     const newMessage: Message = {
@@ -58,7 +65,7 @@ export default function MythOSApp() {
       const response = await authService.sendMessage(content)
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response.data ? JSON.stringify(response.data, null, 2) : 'No response data',
+        content: response.data?.content || response.data?.message || 'No response received',
         role: 'assistant',
         timestamp: new Date()
       }
@@ -94,10 +101,11 @@ export default function MythOSApp() {
       } transition-transform duration-300 ease-in-out z-30 md:relative md:translate-x-0`}>
         <ChatHistory
           sessions={sessions}
-          activeSessionId="1"
+          activeSessionId={undefined}
           onSessionSelect={() => {}}
           onNewChat={() => {
             setMessages([])
+            localStorage.removeItem('chatMessages')
             setIsHistoryOpen(false)
           }}
           onClearHistory={() => {}}
@@ -147,8 +155,8 @@ export default function MythOSApp() {
                 >
                   <div className={`chat-bubble ${
                     message.role === 'user' 
-                      ? 'bg-[#82DED9] text-white' 
-                      : 'bg-gray-100 dark:bg-base-200'
+                      ? 'chat-bubble-primary text-white' 
+                      : 'chat-bubble-secondary'
                   }`}>
                     {message.content}
                   </div>
@@ -156,7 +164,7 @@ export default function MythOSApp() {
               ))}
               {isLoading && (
                 <div className="chat chat-start">
-                  <div className="chat-bubble bg-gray-100 dark:bg-base-200">
+                  <div className="chat-bubble chat-bubble-secondary">
                     <span className="loading loading-dots loading-sm"></span>
                   </div>
                 </div>
