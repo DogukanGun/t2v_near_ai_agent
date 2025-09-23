@@ -13,6 +13,11 @@ const nextConfig = {
     
     // Optimize for mobile performance
     if (!isServer) {
+      // Ensure splitChunks is an object before setting cacheGroups
+      if (!config.optimization.splitChunks) {
+        config.optimization.splitChunks = {};
+      }
+      
       config.optimization.splitChunks.cacheGroups = {
         ...config.optimization.splitChunks.cacheGroups,
         vendor: {
