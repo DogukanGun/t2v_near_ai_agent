@@ -10,16 +10,81 @@
     --background-start-rgb: 214, 219, 220;
     --background-end-rgb: 255, 255, 255;
   }
+  
+  html {
+    /* Prevent zoom on input focus for mobile */
+    font-size: 16px;
+    scroll-behavior: smooth;
+    /* Smooth scrolling for mobile */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  body {
+    /* Prevent text size adjustment on mobile */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    /* Improve mobile performance */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* Mobile-optimized components */
+@layer components {
+  /* Touch-friendly button improvements */
+  .btn {
+    @apply touch-manipulation select-none;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Mobile-optimized input fields */
+  .input, .textarea, .select {
+    @apply touch-manipulation;
+    min-height: 44px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  /* Card hover effects for touch devices */
+  .card {
+    @apply transition-transform duration-200;
+  }
+  
+  .card.card-clickable {
+    @apply active:scale-[0.98] cursor-pointer;
+  }
+  
+  /* Mobile navigation improvements */
+  .navbar {
+    @apply sticky top-0 z-50 backdrop-blur-md bg-base-100/90;
+    border-bottom: 1px solid hsl(var(--bc) / 0.1);
+  }
 }
 
 /* Animation Utilities */
 @layer utilities {
+  /* Mobile-specific utilities */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .select-none {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
   .animate-fade-in {
     animation: fadeIn 1s ease-in-out;
   }
   
   .animate-slide-up {
     animation: slideUp 0.8s ease-out;
+  }
+  
+  .animate-slide-down {
+    animation: slideDown 0.3s ease-out;
   }
   
   .animate-slide-in-right {
@@ -68,6 +133,17 @@
 @keyframes slideUp {
   from { transform: translateY(50px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInRight {
@@ -289,5 +365,50 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Mobile-specific responsive improvements */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Improve modal behavior on mobile */
+  .modal-box {
+    max-height: 90vh;
+    margin: 1rem;
+    width: calc(100vw - 2rem);
+    max-width: none;
+  }
+  
+  /* Better dropdown positioning on mobile */
+  .dropdown-content {
+    position: fixed !important;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn {
+    border-width: 2px;
+  }
+  
+  .card {
+    border-width: 2px;
   }
 }
